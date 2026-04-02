@@ -105,7 +105,7 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
   return (
     <div className="w-full">
       {/* Week navigation */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 sticky top-[53px] z-30 bg-theme-bg py-2 -mx-4 px-4">
         <button
           onClick={() => onWeekChange(addDays(weekStart, -7))}
           className="p-2 rounded hover:bg-theme-hover text-theme-text"
@@ -259,7 +259,7 @@ function MobileDayView({
 
   return (
     <div className="md:hidden" {...swipe}>
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-3 sticky top-[97px] z-20 bg-theme-bg py-2 -mx-4 px-4">
         <button
           onClick={goPrev}
           disabled={dayIndex === 0}

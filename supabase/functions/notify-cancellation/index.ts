@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: 'Posilovna <noreply@yourdomain.com>',
+        from: 'Posilovna <onboarding@resend.dev>',
         to: [email],
         subject: 'Vaše rezervace byla zrušena',
         html: `

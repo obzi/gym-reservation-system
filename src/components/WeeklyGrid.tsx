@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { format, addDays, isSameDay } from 'date-fns'
 import { cs } from 'date-fns/locale'
 import { TIME_SLOTS, MAX_OVERLAP, timeToMinutes, CLOSING_HOUR, SLOT_MINUTES } from '../lib/constants'
 import type { Reservation } from '../types'
 import { ReservationModal } from './ReservationModal'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useSwipe } from '../hooks/useSwipe'
 
 interface Props {
   reservations: Reservation[]
@@ -249,14 +250,18 @@ function MobileDayView({
     return todayIdx >= 0 ? todayIdx : 0
   })
 
+  const goNext = useCallback(() => setDayIndex((i) => Math.min(6, i + 1)), [])
+  const goPrev = useCallback(() => setDayIndex((i) => Math.max(0, i - 1)), [])
+  const swipe = useSwipe(goNext, goPrev)
+
   const day = days[dayIndex]
   if (!day) return null
 
   return (
-    <div className="md:hidden">
+    <div className="md:hidden" {...swipe}>
       <div className="flex items-center justify-between mb-3">
         <button
-          onClick={() => setDayIndex(Math.max(0, dayIndex - 1))}
+          onClick={goPrev}
           disabled={dayIndex === 0}
           className="p-2 rounded hover:bg-theme-hover text-theme-text disabled:opacity-30"
         >
@@ -267,7 +272,7 @@ function MobileDayView({
           <div className="text-sm text-theme-secondary">{format(day, 'd. MMMM', { locale: cs })}</div>
         </div>
         <button
-          onClick={() => setDayIndex(Math.min(6, dayIndex + 1))}
+          onClick={goNext}
           disabled={dayIndex === 6}
           className="p-2 rounded hover:bg-theme-hover text-theme-text disabled:opacity-30"
         >

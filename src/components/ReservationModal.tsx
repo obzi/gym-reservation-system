@@ -59,30 +59,30 @@ export function ReservationModal({ date, startTime, maxEndTime, existingReservat
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+    <div className="fixed inset-0 bg-[var(--modal-bg)] flex items-center justify-center z-50 p-4">
+      <div className="bg-theme-surface rounded-lg p-6 max-w-sm w-full border border-theme-border">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Nová rezervace</h3>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded">
+          <h3 className="text-lg font-semibold text-theme-text">Nová rezervace</h3>
+          <button onClick={onClose} className="p-1 hover:bg-theme-hover rounded text-theme-secondary">
             <X size={20} />
           </button>
         </div>
 
         <div className="space-y-3 mb-4">
           <div>
-            <span className="text-sm text-gray-500">Datum:</span>
-            <span className="ml-2 font-medium">{formatDate(date)}</span>
+            <span className="text-sm text-theme-secondary">Datum:</span>
+            <span className="ml-2 font-medium text-theme-text">{formatDate(date)}</span>
           </div>
           <div>
-            <span className="text-sm text-gray-500">Začátek:</span>
-            <span className="ml-2 font-medium">{startTime}</span>
+            <span className="text-sm text-theme-secondary">Začátek:</span>
+            <span className="ml-2 font-medium text-theme-text">{startTime}</span>
           </div>
           <div>
-            <label className="text-sm text-gray-500 block mb-1">Délka:</label>
+            <label className="text-sm text-theme-secondary block mb-1">Délka:</label>
             <select
               value={duration}
               onChange={(e) => setDuration(Number(e.target.value))}
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              className="w-full border border-theme-border rounded px-3 py-2 bg-theme-surface text-theme-text"
             >
               {durationOptions.map((d) => (
                 <option key={d} value={d}>
@@ -92,8 +92,8 @@ export function ReservationModal({ date, startTime, maxEndTime, existingReservat
             </select>
           </div>
           <div>
-            <span className="text-sm text-gray-500">Konec:</span>
-            <span className="ml-2 font-medium">{endTime}</span>
+            <span className="text-sm text-theme-secondary">Konec:</span>
+            <span className="ml-2 font-medium text-theme-text">{endTime}</span>
           </div>
         </div>
 
@@ -110,7 +110,7 @@ export function ReservationModal({ date, startTime, maxEndTime, existingReservat
         )}
 
         <div className="flex gap-3 justify-end">
-          <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">
+          <button onClick={onClose} className="px-4 py-2 text-theme-secondary hover:bg-theme-hover rounded">
             Zrušit
           </button>
           <button

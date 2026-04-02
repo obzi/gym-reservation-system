@@ -10,8 +10,8 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-gray-500">Načítám...</div>
+      <div className="min-h-screen flex items-center justify-center bg-theme-bg">
+        <div className="text-theme-secondary">Načítám...</div>
       </div>
     )
   }

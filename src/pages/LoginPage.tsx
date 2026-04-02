@@ -36,16 +36,16 @@ export function LoginPage({ onSignIn, onResetPassword }: Props) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-center mb-6">Rezervace posilovny</h1>
+    <div className="min-h-screen flex items-center justify-center bg-theme-bg px-4">
+      <div className="bg-theme-surface p-8 rounded-lg shadow-sm border border-theme-border w-full max-w-sm">
+        <h1 className="text-2xl font-bold text-center mb-6 text-theme-text">Rezervace posilovny</h1>
 
         {resetSent ? (
           <div className="text-center">
-            <p className="text-green-700 mb-4">Odkaz pro obnovu hesla byl odeslán na váš email.</p>
+            <p className="text-green-600 mb-4">Odkaz pro obnovu hesla byl odeslán na váš email.</p>
             <button
               onClick={() => { setResetMode(false); setResetSent(false) }}
-              className="text-blue-600 hover:underline text-sm"
+              className="text-blue-500 hover:underline text-sm"
             >
               Zpět na přihlášení
             </button>
@@ -53,25 +53,25 @@ export function LoginPage({ onSignIn, onResetPassword }: Props) {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-theme-secondary mb-1">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-theme-border rounded px-3 py-2 bg-theme-surface-alt text-theme-text focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             {!resetMode && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Heslo</label>
+                <label className="block text-sm font-medium text-theme-secondary mb-1">Heslo</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-theme-border rounded px-3 py-2 bg-theme-surface-alt text-theme-text focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             )}
@@ -95,7 +95,7 @@ export function LoginPage({ onSignIn, onResetPassword }: Props) {
                 <button
                   type="button"
                   onClick={() => setResetMode(false)}
-                  className="text-blue-600 hover:underline"
+                  className="text-blue-500 hover:underline"
                 >
                   Zpět na přihlášení
                 </button>
@@ -103,17 +103,17 @@ export function LoginPage({ onSignIn, onResetPassword }: Props) {
                 <button
                   type="button"
                   onClick={() => setResetMode(true)}
-                  className="text-blue-600 hover:underline"
+                  className="text-blue-500 hover:underline"
                 >
                   Zapomenuté heslo
                 </button>
               )}
             </div>
 
-            <div className="text-center text-sm text-gray-500">
+            <div className="text-center text-sm text-theme-secondary">
               Nemáte účet? Požádejte správce o pozvánku.
               <br />
-              <Link to="/register" className="text-blue-600 hover:underline">
+              <Link to="/register" className="text-blue-500 hover:underline">
                 Mám pozvánku
               </Link>
             </div>

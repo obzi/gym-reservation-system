@@ -11,13 +11,13 @@ export function AdminPage() {
   const [tab, setTab] = useState<'reservations' | 'users' | 'invites'>('reservations')
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-4 py-3">
+    <div className="min-h-screen bg-theme-bg">
+      <header className="bg-theme-surface border-b border-theme-border px-4 py-3">
         <div className="max-w-4xl mx-auto flex items-center gap-3">
-          <button onClick={() => navigate('/')} className="p-2 hover:bg-gray-100 rounded">
+          <button onClick={() => navigate('/')} className="p-2 hover:bg-theme-hover rounded text-theme-text">
             <ArrowLeft size={18} />
           </button>
-          <h1 className="text-lg font-bold">Administrace</h1>
+          <h1 className="text-lg font-bold text-theme-text">Administrace</h1>
         </div>
       </header>
 
@@ -27,7 +27,7 @@ export function AdminPage() {
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-4 py-2 rounded text-sm font-medium ${tab === t ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'}`}
+              className={`px-4 py-2 rounded text-sm font-medium transition-colors ${tab === t ? 'bg-blue-600 text-white' : 'bg-theme-surface text-theme-secondary hover:bg-theme-hover border border-theme-border'}`}
             >
               {t === 'reservations' ? 'Rezervace' : t === 'users' ? 'Uživatelé' : 'Pozvánky'}
             </button>
@@ -55,26 +55,26 @@ function AdminReservations() {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="font-semibold">Všechny rezervace</h2>
+    <div className="bg-theme-surface rounded-lg border border-theme-border">
+      <div className="p-4 border-b border-theme-border">
+        <h2 className="font-semibold text-theme-text">Všechny rezervace</h2>
       </div>
       {reservations.length === 0 ? (
-        <p className="p-4 text-gray-500 text-sm">Žádné rezervace</p>
+        <p className="p-4 text-theme-secondary text-sm">Žádné rezervace</p>
       ) : (
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-theme-border">
           {reservations.map((r) => (
             <div key={r.id} className="p-4 flex items-center justify-between">
               <div>
-                <span className="font-medium">{r.profile?.display_name || 'Uživatel'}</span>
-                <span className="text-gray-500 text-sm ml-3">
+                <span className="font-medium text-theme-text">{r.profile?.display_name || 'Uživatel'}</span>
+                <span className="text-theme-secondary text-sm ml-3">
                   {r.date.split('-').reverse().join('.')} {r.start_time}–{r.end_time}
                 </span>
               </div>
               <button
                 onClick={() => handleCancel(r.id)}
                 disabled={cancelling === r.id}
-                className="p-2 text-red-600 hover:bg-red-50 rounded disabled:opacity-50"
+                className="p-2 text-red-500 hover:bg-red-500/10 rounded disabled:opacity-50"
                 title="Zrušit rezervaci"
               >
                 <Trash2 size={16} />
@@ -110,36 +110,36 @@ function AdminUsers() {
     fetchUsers()
   }
 
-  if (loading) return <p className="text-gray-500">Načítám...</p>
+  if (loading) return <p className="text-theme-secondary">Načítám...</p>
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="font-semibold">Uživatelé</h2>
+    <div className="bg-theme-surface rounded-lg border border-theme-border">
+      <div className="p-4 border-b border-theme-border">
+        <h2 className="font-semibold text-theme-text">Uživatelé</h2>
       </div>
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-theme-border">
         {users.map((user) => (
           <div key={user.id} className="p-4 flex items-center justify-between">
             <div>
-              <span className={`font-medium ${!user.active ? 'text-gray-400 line-through' : ''}`}>
+              <span className={`font-medium ${!user.active ? 'text-theme-secondary line-through' : 'text-theme-text'}`}>
                 {user.display_name}
               </span>
-              <span className="text-gray-500 text-sm ml-2">{user.email}</span>
+              <span className="text-theme-secondary text-sm ml-2">{user.email}</span>
               {user.role === 'admin' && (
-                <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">admin</span>
+                <span className="ml-2 text-xs bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded">admin</span>
               )}
             </div>
             <div className="flex gap-2">
               <button
                 onClick={() => toggleActive(user)}
-                className={`p-2 rounded ${user.active ? 'text-yellow-600 hover:bg-yellow-50' : 'text-green-600 hover:bg-green-50'}`}
+                className={`p-2 rounded ${user.active ? 'text-yellow-500 hover:bg-yellow-500/10' : 'text-green-500 hover:bg-green-500/10'}`}
                 title={user.active ? 'Deaktivovat' : 'Aktivovat'}
               >
                 {user.active ? <UserX size={16} /> : <UserCheck size={16} />}
               </button>
               <button
                 onClick={() => deleteUser(user)}
-                className="p-2 text-red-600 hover:bg-red-50 rounded"
+                className="p-2 text-red-500 hover:bg-red-500/10 rounded"
                 title="Smazat"
               >
                 <Trash2 size={16} />
@@ -184,16 +184,16 @@ function AdminInvites() {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
-      <h2 className="font-semibold mb-4">Vygenerovat pozvánku</h2>
+    <div className="bg-theme-surface rounded-lg border border-theme-border p-4">
+      <h2 className="font-semibold mb-4 text-theme-text">Vygenerovat pozvánku</h2>
 
       <div className="flex gap-3 items-end mb-4">
         <div>
-          <label className="block text-sm text-gray-600 mb-1">Platnost</label>
+          <label className="block text-sm text-theme-secondary mb-1">Platnost</label>
           <select
             value={expiry}
             onChange={(e) => setExpiry(e.target.value as '24h' | '48h' | '7d')}
-            className="border border-gray-300 rounded px-3 py-2"
+            className="border border-theme-border rounded px-3 py-2 bg-theme-surface text-theme-text"
           >
             <option value="24h">24 hodin</option>
             <option value="48h">48 hodin</option>
@@ -210,14 +210,14 @@ function AdminInvites() {
       </div>
 
       {generatedLink && (
-        <div className="flex items-center gap-2 p-3 bg-gray-50 rounded border border-gray-200">
+        <div className="flex items-center gap-2 p-3 bg-theme-surface-alt rounded border border-theme-border">
           <input
             readOnly
             value={generatedLink}
-            className="flex-1 bg-transparent text-sm font-mono outline-none"
+            className="flex-1 bg-transparent text-sm font-mono outline-none text-theme-text"
           />
-          <button onClick={copyLink} className="p-2 hover:bg-gray-200 rounded" title="Kopírovat">
-            {copied ? <Check size={16} className="text-green-600" /> : <Copy size={16} />}
+          <button onClick={copyLink} className="p-2 hover:bg-theme-hover rounded" title="Kopírovat">
+            {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} className="text-theme-secondary" />}
           </button>
         </div>
       )}

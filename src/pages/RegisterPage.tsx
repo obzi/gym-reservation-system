@@ -19,11 +19,11 @@ export function RegisterPage({ onSignUp }: Props) {
 
   if (!token) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 w-full max-w-sm text-center">
-          <h1 className="text-xl font-bold mb-4">Neplatný odkaz</h1>
-          <p className="text-gray-600 mb-4">Pozvánka vypršela, kontaktuj správce</p>
-          <Link to="/" className="text-blue-600 hover:underline">Přihlásit se</Link>
+      <div className="min-h-screen flex items-center justify-center bg-theme-bg px-4">
+        <div className="bg-theme-surface p-8 rounded-lg shadow-sm border border-theme-border w-full max-w-sm text-center">
+          <h1 className="text-xl font-bold mb-4 text-theme-text">Neplatný odkaz</h1>
+          <p className="text-theme-secondary mb-4">Pozvánka vypršela, kontaktuj správce</p>
+          <Link to="/" className="text-blue-500 hover:underline">Přihlásit se</Link>
         </div>
       </div>
     )
@@ -51,11 +51,11 @@ export function RegisterPage({ onSignUp }: Props) {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 w-full max-w-sm text-center">
-          <h1 className="text-xl font-bold mb-4">Registrace úspěšná!</h1>
-          <p className="text-gray-600 mb-4">Zkontrolujte svůj email pro potvrzení účtu.</p>
-          <button onClick={() => navigate('/')} className="text-blue-600 hover:underline">
+      <div className="min-h-screen flex items-center justify-center bg-theme-bg px-4">
+        <div className="bg-theme-surface p-8 rounded-lg shadow-sm border border-theme-border w-full max-w-sm text-center">
+          <h1 className="text-xl font-bold mb-4 text-theme-text">Registrace úspěšná!</h1>
+          <p className="text-theme-secondary mb-4">Zkontrolujte svůj email pro potvrzení účtu.</p>
+          <button onClick={() => navigate('/')} className="text-blue-500 hover:underline">
             Přihlásit se
           </button>
         </div>
@@ -64,42 +64,42 @@ export function RegisterPage({ onSignUp }: Props) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-center mb-6">Registrace</h1>
+    <div className="min-h-screen flex items-center justify-center bg-theme-bg px-4">
+      <div className="bg-theme-surface p-8 rounded-lg shadow-sm border border-theme-border w-full max-w-sm">
+        <h1 className="text-2xl font-bold text-center mb-6 text-theme-text">Registrace</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Jméno</label>
+            <label className="block text-sm font-medium text-theme-secondary mb-1">Jméno</label>
             <input
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               required
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-theme-border rounded px-3 py-2 bg-theme-surface-alt text-theme-text focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-theme-secondary mb-1">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-theme-border rounded px-3 py-2 bg-theme-surface-alt text-theme-text focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Heslo</label>
+            <label className="block text-sm font-medium text-theme-secondary mb-1">Heslo</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-theme-border rounded px-3 py-2 bg-theme-surface-alt text-theme-text focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -118,7 +118,7 @@ export function RegisterPage({ onSignUp }: Props) {
           </button>
 
           <div className="text-center text-sm">
-            <Link to="/" className="text-blue-600 hover:underline">
+            <Link to="/" className="text-blue-500 hover:underline">
               Už mám účet
             </Link>
           </div>

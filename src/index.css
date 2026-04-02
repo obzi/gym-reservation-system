@@ -1,1 +1,56 @@
 @import "tailwindcss";
+
+@theme {
+  --color-theme-bg: var(--bg);
+  --color-theme-surface: var(--surface);
+  --color-theme-surface-alt: var(--surface-alt);
+  --color-theme-border: var(--border);
+  --color-theme-text: var(--text);
+  --color-theme-secondary: var(--text-secondary);
+  --color-theme-hover: var(--hover);
+  --color-theme-slot-empty: var(--slot-empty);
+  --color-theme-slot-empty-hover: var(--slot-empty-hover);
+  --color-theme-modal-bg: var(--modal-bg);
+}
+
+/* Light theme */
+:root, .light {
+  --bg: #f9fafb;
+  --surface: #ffffff;
+  --surface-alt: #f3f4f6;
+  --border: #e5e7eb;
+  --text: #111827;
+  --text-secondary: #6b7280;
+  --hover: #f3f4f6;
+  --slot-empty: #ffffff;
+  --slot-empty-hover: #e0e7ff;
+  --modal-bg: rgba(0, 0, 0, 0.5);
+}
+
+/* Dim theme */
+.dim {
+  --bg: #1e2030;
+  --surface: #282a3a;
+  --surface-alt: #323450;
+  --border: #3b3d56;
+  --text: #e2e4f0;
+  --text-secondary: #9498b3;
+  --hover: #353752;
+  --slot-empty: #2a2c3e;
+  --slot-empty-hover: #3a3d5c;
+  --modal-bg: rgba(0, 0, 0, 0.6);
+}
+
+/* Dark theme */
+.dark {
+  --bg: #0d0d0d;
+  --surface: #171717;
+  --surface-alt: #1f1f1f;
+  --border: #2e2e2e;
+  --text: #e5e5e5;
+  --text-secondary: #8b8b8b;
+  --hover: #262626;
+  --slot-empty: #1a1a1a;
+  --slot-empty-hover: #2a2a3a;
+  --modal-bg: rgba(0, 0, 0, 0.7);
+}

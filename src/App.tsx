@@ -4,15 +4,24 @@ import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { CalendarPage } from './pages/CalendarPage'
 import { AdminPage } from './pages/AdminPage'
+import { ResetPasswordPage } from './pages/ResetPasswordPage'
 
 export default function App() {
-  const { user, profile, loading, signIn, signUp, signOut, resetPassword, updateDisplayName, isAdmin } = useAuth()
+  const { user, profile, loading, signIn, signUp, signOut, resetPassword, updatePassword, updateDisplayName, isAdmin, isRecovery } = useAuth()
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-theme-bg">
         <div className="text-theme-secondary">Načítám...</div>
       </div>
+    )
+  }
+
+  if (isRecovery && user) {
+    return (
+      <BrowserRouter basename="/gym-reservation-system">
+        <ResetPasswordPage onUpdatePassword={updatePassword} />
+      </BrowserRouter>
     )
   }
 

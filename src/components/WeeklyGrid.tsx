@@ -133,13 +133,13 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
       {/* Grid - Desktop */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full border-collapse text-xs">
-          <thead>
+          <thead className="sticky top-[97px] z-20">
             <tr>
               <th className="border border-theme-border p-2 bg-theme-surface-alt w-16 text-theme-secondary">Čas</th>
               {days.map((day) => (
                 <th
                   key={day.toISOString()}
-                  className={`border border-theme-border p-2 text-theme-text ${isSameDay(day, today) ? 'bg-blue-100/50 dark:bg-blue-900/20' : 'bg-theme-surface-alt'}`}
+                  className={`border border-theme-border p-2 text-theme-text ${isSameDay(day, today) ? 'bg-blue-50' : 'bg-theme-surface-alt'}`}
                 >
                   <div className="font-semibold">{format(day, 'EEEEEE', { locale: cs })}</div>
                   <div className="text-theme-secondary">{format(day, 'd.M.')}</div>

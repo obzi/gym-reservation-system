@@ -78,5 +78,17 @@ export function useAuth() {
     return { error }
   }
 
-  return { user, profile, loading, signIn, signUp, signOut, resetPassword, isAdmin: profile?.role === 'admin' }
+  const updateDisplayName = async (newName: string) => {
+    if (!user) return { error: { message: 'Nepřihlášen' } }
+    const { error } = await supabase
+      .from('profiles')
+      .update({ display_name: newName })
+      .eq('id', user.id)
+    if (!error) {
+      setProfile((prev) => prev ? { ...prev, display_name: newName } : prev)
+    }
+    return { error }
+  }
+
+  return { user, profile, loading, signIn, signUp, signOut, resetPassword, updateDisplayName, isAdmin: profile?.role === 'admin' }
 }

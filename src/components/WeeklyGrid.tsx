@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import { format, addDays, isSameDay } from 'date-fns'
 import { cs } from 'date-fns/locale'
 import { TIME_SLOTS, MAX_OVERLAP, timeToMinutes, CLOSING_HOUR, SLOT_MINUTES } from '../lib/constants'
 import type { Reservation } from '../types'
 import { ReservationModal } from './ReservationModal'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useSwipe } from '../hooks/useSwipe'
 
 interface Props {
   reservations: Reservation[]
@@ -40,9 +41,9 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
 
   const getSlotColor = (count: number): string => {
     if (count === 0) return 'bg-theme-slot-empty hover:bg-theme-slot-empty-hover'
-    if (count === 1) return 'bg-green-200/70 hover:bg-green-300/80 dark:bg-green-900/40 dark:hover:bg-green-800/50'
-    if (count === 2) return 'bg-yellow-200/70 hover:bg-yellow-300/80 dark:bg-yellow-900/40 dark:hover:bg-yellow-800/50'
-    return 'bg-red-300/80 dark:bg-red-900/50'
+    if (count === 1) return 'bg-theme-slot-1 hover:bg-theme-slot-1-hover'
+    if (count === 2) return 'bg-theme-slot-2 hover:bg-theme-slot-2-hover'
+    return 'bg-theme-slot-full'
   }
 
   const isLastSlot = (time: string) => timeToMinutes(time) >= LAST_BOOKABLE_MINUTES
@@ -104,7 +105,7 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
   return (
     <div className="w-full">
       {/* Week navigation */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 sticky top-[53px] z-30 bg-theme-bg py-2 -mx-4 px-4">
         <button
           onClick={() => onWeekChange(addDays(weekStart, -7))}
           className="p-2 rounded hover:bg-theme-hover text-theme-text"
@@ -132,13 +133,13 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
       {/* Grid - Desktop */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full border-collapse text-xs">
-          <thead>
+          <thead className="sticky top-[97px] z-20">
             <tr>
               <th className="border border-theme-border p-2 bg-theme-surface-alt w-16 text-theme-secondary">Čas</th>
               {days.map((day) => (
                 <th
                   key={day.toISOString()}
-                  className={`border border-theme-border p-2 text-theme-text ${isSameDay(day, today) ? 'bg-blue-100/50 dark:bg-blue-900/20' : 'bg-theme-surface-alt'}`}
+                  className={`border border-theme-border p-2 text-theme-text ${isSameDay(day, today) ? 'bg-blue-50' : 'bg-theme-surface-alt'}`}
                 >
                   <div className="font-semibold">{format(day, 'EEEEEE', { locale: cs })}</div>
                   <div className="text-theme-secondary">{format(day, 'd.M.')}</div>
@@ -168,7 +169,7 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
                         {slotRes.map((r) => (
                           <span
                             key={r.id}
-                            className={`block truncate px-0.5 rounded text-[10px] leading-tight ${r.user_id === currentUserId ? 'font-bold text-blue-700 dark:text-blue-300' : 'text-theme-secondary'}`}
+                            className={`block truncate px-0.5 rounded text-[10px] leading-tight ${r.user_id === currentUserId ? 'font-bold text-theme-slot-text-own' : 'text-theme-slot-text'}`}
                           >
                             {r.profile?.display_name || 'Uživatel'}
                           </span>
@@ -249,14 +250,18 @@ function MobileDayView({
     return todayIdx >= 0 ? todayIdx : 0
   })
 
+  const goNext = useCallback(() => setDayIndex((i) => Math.min(6, i + 1)), [])
+  const goPrev = useCallback(() => setDayIndex((i) => Math.max(0, i - 1)), [])
+  const swipe = useSwipe(goNext, goPrev)
+
   const day = days[dayIndex]
   if (!day) return null
 
   return (
-    <div className="md:hidden">
-      <div className="flex items-center justify-between mb-3">
+    <div className="md:hidden" {...swipe}>
+      <div className="flex items-center justify-between mb-3 sticky top-[97px] z-20 bg-theme-bg py-2 -mx-4 px-4">
         <button
-          onClick={() => setDayIndex(Math.max(0, dayIndex - 1))}
+          onClick={goPrev}
           disabled={dayIndex === 0}
           className="p-2 rounded hover:bg-theme-hover text-theme-text disabled:opacity-30"
         >
@@ -267,7 +272,7 @@ function MobileDayView({
           <div className="text-sm text-theme-secondary">{format(day, 'd. MMMM', { locale: cs })}</div>
         </div>
         <button
-          onClick={() => setDayIndex(Math.min(6, dayIndex + 1))}
+          onClick={goNext}
           disabled={dayIndex === 6}
           className="p-2 rounded hover:bg-theme-hover text-theme-text disabled:opacity-30"
         >
@@ -294,7 +299,7 @@ function MobileDayView({
                 {slotRes.map((r) => (
                   <span
                     key={r.id}
-                    className={`text-xs px-1.5 py-0.5 rounded ${r.user_id === currentUserId ? 'bg-blue-200 font-bold text-blue-800 dark:bg-blue-800 dark:text-blue-200' : 'bg-theme-surface-alt text-theme-secondary'}`}
+                    className={`text-xs px-1.5 py-0.5 rounded ${r.user_id === currentUserId ? 'bg-theme-slot-badge-own font-bold text-theme-slot-badge-own-text' : 'bg-theme-slot-badge text-theme-slot-text'}`}
                   >
                     {r.profile?.display_name || 'Uživatel'}
                   </span>

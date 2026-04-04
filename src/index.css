@@ -11,6 +11,16 @@
   --color-theme-slot-empty: var(--slot-empty);
   --color-theme-slot-empty-hover: var(--slot-empty-hover);
   --color-theme-modal-bg: var(--modal-bg);
+  --color-theme-slot-text: var(--slot-text);
+  --color-theme-slot-text-own: var(--slot-text-own);
+  --color-theme-slot-1: var(--slot-1);
+  --color-theme-slot-1-hover: var(--slot-1-hover);
+  --color-theme-slot-2: var(--slot-2);
+  --color-theme-slot-2-hover: var(--slot-2-hover);
+  --color-theme-slot-full: var(--slot-full);
+  --color-theme-slot-badge: var(--slot-badge);
+  --color-theme-slot-badge-own: var(--slot-badge-own);
+  --color-theme-slot-badge-own-text: var(--slot-badge-own-text);
 }
 
 /* Light theme */
@@ -25,6 +35,16 @@
   --slot-empty: #ffffff;
   --slot-empty-hover: #e0e7ff;
   --modal-bg: rgba(0, 0, 0, 0.5);
+  --slot-text: #374151;
+  --slot-text-own: #1d4ed8;
+  --slot-1: #bbf7d0;
+  --slot-1-hover: #86efac;
+  --slot-2: #fde68a;
+  --slot-2-hover: #fcd34d;
+  --slot-full: #fca5a5;
+  --slot-badge: #e5e7eb;
+  --slot-badge-own: #bfdbfe;
+  --slot-badge-own-text: #1e40af;
 }
 
 /* Dim theme */
@@ -39,6 +59,16 @@
   --slot-empty: #2a2c3e;
   --slot-empty-hover: #3a3d5c;
   --modal-bg: rgba(0, 0, 0, 0.6);
+  --slot-text: #c8cbe0;
+  --slot-text-own: #93b4f8;
+  --slot-1: #1a3a2a;
+  --slot-1-hover: #224a35;
+  --slot-2: #3a3520;
+  --slot-2-hover: #4a4528;
+  --slot-full: #4a2020;
+  --slot-badge: #3b3d56;
+  --slot-badge-own: #2a3a5c;
+  --slot-badge-own-text: #93b4f8;
 }
 
 /* Dark theme */
@@ -53,4 +83,14 @@
   --slot-empty: #1a1a1a;
   --slot-empty-hover: #2a2a3a;
   --modal-bg: rgba(0, 0, 0, 0.7);
+  --slot-text: #b0b0b0;
+  --slot-text-own: #7db4ff;
+  --slot-1: #132a1a;
+  --slot-1-hover: #1a3a22;
+  --slot-2: #2e2a14;
+  --slot-2-hover: #3a341a;
+  --slot-full: #3a1818;
+  --slot-badge: #2e2e2e;
+  --slot-badge-own: #1e2a4a;
+  --slot-badge-own-text: #7db4ff;
 }

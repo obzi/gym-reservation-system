@@ -6,7 +6,7 @@ import { CalendarPage } from './pages/CalendarPage'
 import { AdminPage } from './pages/AdminPage'
 
 export default function App() {
-  const { user, profile, loading, signIn, signUp, signOut, resetPassword, isAdmin } = useAuth()
+  const { user, profile, loading, signIn, signUp, signOut, resetPassword, updateDisplayName, isAdmin } = useAuth()
 
   if (loading) {
     return (
@@ -23,7 +23,7 @@ export default function App() {
           path="/"
           element={
             user && profile ? (
-              <CalendarPage profile={profile} userId={user.id} onSignOut={signOut} />
+              <CalendarPage profile={profile} userId={user.id} onSignOut={signOut} onUpdateName={updateDisplayName} />
             ) : (
               <LoginPage onSignIn={signIn} onResetPassword={resetPassword} />
             )

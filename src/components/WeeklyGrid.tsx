@@ -41,9 +41,9 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
 
   const getSlotColor = (count: number): string => {
     if (count === 0) return 'bg-theme-slot-empty hover:bg-theme-slot-empty-hover'
-    if (count === 1) return 'bg-green-200/70 hover:bg-green-300/80 dark:bg-green-900/40 dark:hover:bg-green-800/50'
-    if (count === 2) return 'bg-yellow-200/70 hover:bg-yellow-300/80 dark:bg-yellow-900/40 dark:hover:bg-yellow-800/50'
-    return 'bg-red-300/80 dark:bg-red-900/50'
+    if (count === 1) return 'bg-theme-slot-1 hover:bg-theme-slot-1-hover'
+    if (count === 2) return 'bg-theme-slot-2 hover:bg-theme-slot-2-hover'
+    return 'bg-theme-slot-full'
   }
 
   const isLastSlot = (time: string) => timeToMinutes(time) >= LAST_BOOKABLE_MINUTES
@@ -169,7 +169,7 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
                         {slotRes.map((r) => (
                           <span
                             key={r.id}
-                            className={`block truncate px-0.5 rounded text-[10px] leading-tight ${r.user_id === currentUserId ? 'font-bold text-blue-700 dark:text-blue-300' : 'text-theme-secondary'}`}
+                            className={`block truncate px-0.5 rounded text-[10px] leading-tight ${r.user_id === currentUserId ? 'font-bold text-theme-slot-text-own' : 'text-theme-slot-text'}`}
                           >
                             {r.profile?.display_name || 'Uživatel'}
                           </span>
@@ -299,7 +299,7 @@ function MobileDayView({
                 {slotRes.map((r) => (
                   <span
                     key={r.id}
-                    className={`text-xs px-1.5 py-0.5 rounded ${r.user_id === currentUserId ? 'bg-blue-200 font-bold text-blue-800 dark:bg-blue-800 dark:text-blue-200' : 'bg-theme-surface-alt text-theme-secondary'}`}
+                    className={`text-xs px-1.5 py-0.5 rounded ${r.user_id === currentUserId ? 'bg-theme-slot-badge-own font-bold text-theme-slot-badge-own-text' : 'bg-theme-slot-badge text-theme-slot-text'}`}
                   >
                     {r.profile?.display_name || 'Uživatel'}
                   </span>

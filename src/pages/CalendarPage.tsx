@@ -42,10 +42,10 @@ export function CalendarPage({ profile, userId, onSignOut, onUpdateName, setting
     const { error } = await onUpdateName(trimmed)
     if (error) {
       setNameError(error.message)
+      setSaving(false)
     } else {
-      setEditingName(false)
+      window.location.reload()
     }
-    setSaving(false)
   }
 
   return (

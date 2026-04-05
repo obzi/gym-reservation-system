@@ -283,6 +283,11 @@ function AdminInvites() {
     setTimeout(() => setCopiedToken(null), 2000)
   }
 
+  const deleteToken = async (token: string) => {
+    await supabase.from('invite_tokens').delete().eq('token', token)
+    await fetchActiveTokens()
+  }
+
   const formatExpiry = (expiresAt: string) => {
     const expires = new Date(expiresAt)
     const now = new Date()
@@ -339,6 +344,9 @@ function AdminInvites() {
               </span>
               <button onClick={() => copyLink(t.token)} className="p-2 hover:bg-theme-hover rounded" title="Kopírovat">
                 {copiedToken === t.token ? <Check size={16} className="text-green-500" /> : <Copy size={16} className="text-theme-secondary" />}
+              </button>
+              <button onClick={() => deleteToken(t.token)} className="p-2 hover:bg-red-500/10 rounded" title="Smazat pozvánku">
+                <Trash2 size={16} className="text-red-500" />
               </button>
             </div>
           ))}

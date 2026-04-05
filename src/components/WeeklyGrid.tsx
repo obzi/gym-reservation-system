@@ -161,9 +161,12 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
             </tr>
           </thead>
           <tbody>
-            {timeSlots.map((time) => (
+            {timeSlots.map((time) => {
+              const dayCounts = days.map((day) => getSlotReservations(day, time).length)
+              const maxCount = Math.max(0, ...dayCounts)
+              return (
               <tr key={time}>
-                <td className="border border-theme-border p-1 text-center bg-theme-surface-alt text-theme-secondary font-mono">
+                <td className={`border border-theme-border p-1 text-center font-mono ${getSlotColor(maxCount)}`}>
                   {time}
                 </td>
                 {days.map((day) => {
@@ -177,13 +180,13 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
                       onClick={() => canClick && handleSlotClick(day, time)}
                       title={slotRes.map((r) => r.profile?.display_name || 'Uživatel').join(', ')}
                     >
-                      <div className={`min-h-[24px] flex flex-col ${slotRes.length === 1 ? 'justify-center' : ''}`}>
+                      <div className={`min-h-[32px] flex flex-col ${slotRes.length === 1 ? 'justify-center' : ''}`}>
                         {slotRes.map((r, idx) => {
                           const color = getUserColor(r.user_id)
                           return (
                           <div
                             key={r.id}
-                            className={`flex-1 flex items-center truncate px-1 text-[10px] leading-tight ${r.user_id === currentUserId ? 'font-bold' : ''} ${idx > 0 ? 'border-t border-white/30' : ''}`}
+                            className={`flex-1 flex items-center truncate px-1 text-xs leading-tight ${r.user_id === currentUserId ? 'font-bold' : ''} ${idx > 0 ? 'border-t border-white/30' : ''}`}
                             style={{ backgroundColor: color.bg, color: color.text }}
                           >
                             {r.profile?.display_name || 'Uživatel'}
@@ -195,7 +198,8 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
                   )
                 })}
               </tr>
-            ))}
+              )
+            })}
             <tr>
               <td className="border border-theme-border p-1 text-center bg-theme-surface-alt text-theme-secondary font-mono">
                 {closingTime}

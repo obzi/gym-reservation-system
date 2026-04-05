@@ -5,7 +5,7 @@ interface SwipeHandlers {
   onTouchEnd: (e: React.TouchEvent) => void
 }
 
-export function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void, threshold = 80): SwipeHandlers {
+export function useSwipe(onSwipeLeft: () => void, onSwipeRight: () => void, threshold = 70): SwipeHandlers {
   const startX = useRef(0)
   const startY = useRef(0)
 

@@ -154,33 +154,56 @@ function AdminUsers() {
 
 function AdminInvites() {
   const [expiry, setExpiry] = useState<'24h' | '48h' | '7d'>('24h')
-  const [generatedLink, setGeneratedLink] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
   const [generating, setGenerating] = useState(false)
+  const [copiedToken, setCopiedToken] = useState<string | null>(null)
+  const [activeTokens, setActiveTokens] = useState<{ token: string; expires_at: string; created_at: string }[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const fetchActiveTokens = useCallback(async () => {
+    const { data } = await supabase
+      .from('invite_tokens')
+      .select('token, expires_at, created_at')
+      .gte('expires_at', new Date().toISOString())
+      .order('expires_at', { ascending: true })
+    if (data) setActiveTokens(data)
+    setLoading(false)
+  }, [])
+
+  useEffect(() => { fetchActiveTokens() }, [fetchActiveTokens])
 
   const generateInvite = async () => {
     setGenerating(true)
     const hours = expiry === '24h' ? 24 : expiry === '48h' ? 48 : 168
     const expiresAt = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString()
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('invite_tokens')
       .insert({ expires_at: expiresAt })
-      .select('token')
-      .single()
 
-    if (!error && data) {
-      const link = `${window.location.origin}/gym-reservation-system/register?token=${data.token}`
-      setGeneratedLink(link)
+    if (!error) {
+      await fetchActiveTokens()
     }
     setGenerating(false)
   }
 
-  const copyLink = async () => {
-    if (!generatedLink) return
-    await navigator.clipboard.writeText(generatedLink)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+  const copyLink = async (token: string) => {
+    const link = `${window.location.origin}/gym-reservation-system/register?token=${token}`
+    await navigator.clipboard.writeText(link)
+    setCopiedToken(token)
+    setTimeout(() => setCopiedToken(null), 2000)
+  }
+
+  const formatExpiry = (expiresAt: string) => {
+    const expires = new Date(expiresAt)
+    const now = new Date()
+    const diffMs = expires.getTime() - now.getTime()
+    const diffH = Math.floor(diffMs / (1000 * 60 * 60))
+    const diffM = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
+    if (diffH >= 24) {
+      const days = Math.floor(diffH / 24)
+      return `${days}d ${diffH % 24}h`
+    }
+    return `${diffH}h ${diffM}m`
   }
 
   return (
@@ -209,17 +232,29 @@ function AdminInvites() {
         </button>
       </div>
 
-      {generatedLink && (
-        <div className="flex items-center gap-2 p-3 bg-theme-surface-alt rounded border border-theme-border">
-          <input
-            readOnly
-            value={generatedLink}
-            className="flex-1 bg-transparent text-sm font-mono outline-none text-theme-text"
-          />
-          <button onClick={copyLink} className="p-2 hover:bg-theme-hover rounded" title="Kopírovat">
-            {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} className="text-theme-secondary" />}
-          </button>
+      {loading ? (
+        <p className="text-theme-secondary text-sm">Načítám...</p>
+      ) : activeTokens.length > 0 ? (
+        <div className="space-y-2">
+          <h3 className="text-sm font-medium text-theme-secondary">Aktivní pozvánky</h3>
+          {activeTokens.map((t) => (
+            <div key={t.token} className="flex items-center gap-2 p-3 bg-theme-surface-alt rounded border border-theme-border">
+              <input
+                readOnly
+                value={`${window.location.origin}/gym-reservation-system/register?token=${t.token}`}
+                className="flex-1 bg-transparent text-sm font-mono outline-none text-theme-text"
+              />
+              <span className="text-xs text-theme-secondary whitespace-nowrap" title={`Vyprší: ${format(new Date(t.expires_at), 'd.M. HH:mm')}`}>
+                {formatExpiry(t.expires_at)}
+              </span>
+              <button onClick={() => copyLink(t.token)} className="p-2 hover:bg-theme-hover rounded" title="Kopírovat">
+                {copiedToken === t.token ? <Check size={16} className="text-green-500" /> : <Copy size={16} className="text-theme-secondary" />}
+              </button>
+            </div>
+          ))}
         </div>
+      ) : (
+        <p className="text-theme-secondary text-sm">Žádné aktivní pozvánky</p>
       )}
     </div>
   )

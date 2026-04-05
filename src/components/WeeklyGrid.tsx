@@ -193,6 +193,8 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
         getSlotReservations={getSlotReservations}
         getSlotColor={getSlotColor}
         isLastSlot={isLastSlot}
+        weekStart={weekStart}
+        onWeekChange={onWeekChange}
       />
 
       {/* Create reservation modal */}
@@ -236,6 +238,8 @@ function MobileDayView({
   getSlotReservations,
   getSlotColor,
   isLastSlot,
+  weekStart,
+  onWeekChange,
 }: {
   days: Date[]
   today: Date
@@ -244,14 +248,34 @@ function MobileDayView({
   getSlotReservations: (date: Date, time: string) => Reservation[]
   getSlotColor: (count: number) => string
   isLastSlot: (time: string) => boolean
+  weekStart: Date
+  onWeekChange: (date: Date) => void
 }) {
   const [dayIndex, setDayIndex] = useState(() => {
     const todayIdx = days.findIndex((d) => isSameDay(d, today))
     return todayIdx >= 0 ? todayIdx : 0
   })
 
-  const goNext = useCallback(() => setDayIndex((i) => Math.min(6, i + 1)), [])
-  const goPrev = useCallback(() => setDayIndex((i) => Math.max(0, i - 1)), [])
+  const goNext = useCallback(() => {
+    setDayIndex((i) => {
+      if (i >= 6) {
+        onWeekChange(addDays(weekStart, 7))
+        return 0
+      }
+      return i + 1
+    })
+  }, [weekStart, onWeekChange])
+
+  const goPrev = useCallback(() => {
+    setDayIndex((i) => {
+      if (i <= 0) {
+        onWeekChange(addDays(weekStart, -7))
+        return 6
+      }
+      return i - 1
+    })
+  }, [weekStart, onWeekChange])
+
   const swipe = useSwipe(goNext, goPrev)
 
   const day = days[dayIndex]
@@ -262,8 +286,7 @@ function MobileDayView({
       <div className="flex items-center justify-between mb-3 sticky top-[97px] z-20 bg-theme-bg py-2 -mx-4 px-4">
         <button
           onClick={goPrev}
-          disabled={dayIndex === 0}
-          className="p-2 rounded hover:bg-theme-hover text-theme-text disabled:opacity-30"
+          className="p-2 rounded hover:bg-theme-hover text-theme-text"
         >
           <ChevronLeft size={20} />
         </button>
@@ -273,8 +296,7 @@ function MobileDayView({
         </div>
         <button
           onClick={goNext}
-          disabled={dayIndex === 6}
-          className="p-2 rounded hover:bg-theme-hover text-theme-text disabled:opacity-30"
+          className="p-2 rounded hover:bg-theme-hover text-theme-text"
         >
           <ChevronRight size={20} />
         </button>

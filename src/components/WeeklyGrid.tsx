@@ -347,7 +347,7 @@ function MobileDayView({
               className={`flex items-stretch border border-theme-border rounded bg-theme-surface ${isPast ? 'opacity-40' : canClick ? 'cursor-pointer' : 'cursor-default'} transition-all duration-150 hover:ring-1 hover:ring-blue-400/40`}
               onClick={() => canClick && onSlotClick(day, time)}
             >
-              <div className={`w-14 flex-shrink-0 p-1.5 text-xs font-mono border-r border-theme-border flex items-center justify-center ${getSlotColor(slotRes.length)}`}>
+              <div className={`w-14 flex-shrink-0 p-1.5 text-xs font-mono border-r border-theme-border flex items-center justify-center text-theme-text ${getSlotColor(slotRes.length)}`}>
                 {time}
               </div>
               <div className="flex-1 flex min-h-[32px]">

@@ -8,6 +8,26 @@ import { ReservationModal } from './ReservationModal'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useSwipe } from '../hooks/useSwipe'
 
+function hashCode(str: string): number {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0
+  }
+  return Math.abs(hash)
+}
+
+function getUserColor(userId: string): { bg: string; text: string } {
+  const hue = hashCode(userId) % 360
+  return {
+    bg: `hsl(${hue}, 55%, 75%)`,
+    text: `hsl(${hue}, 60%, 20%)`,
+  }
+}
+
+function sortedByUserId(res: Reservation[]): Reservation[] {
+  return [...res].sort((a, b) => a.user_id.localeCompare(b.user_id))
+}
+
 interface Props {
   reservations: Reservation[]
   currentUserId: string | undefined
@@ -23,11 +43,11 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
   const [cancelConfirm, setCancelConfirm] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const lastBookableMinutes = (settings.closing_hour * 60) - settings.slot_minutes
+  const closingTime = `${String(settings.closing_hour).padStart(2, '0')}:${String(settings.closing_minute).padStart(2, '0')}`
 
   const timeSlots = useMemo(
-    () => generateTimeSlots(settings.opening_hour, settings.closing_hour, settings.slot_minutes),
-    [settings.opening_hour, settings.closing_hour, settings.slot_minutes],
+    () => generateTimeSlots(settings.opening_hour, settings.opening_minute, settings.closing_hour, settings.closing_minute, settings.slot_minutes),
+    [settings.opening_hour, settings.opening_minute, settings.closing_hour, settings.closing_minute, settings.slot_minutes],
   )
 
   const days = useMemo(() => {
@@ -37,12 +57,12 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
   const getSlotReservations = (date: Date, time: string): Reservation[] => {
     const dateStr = format(date, 'yyyy-MM-dd')
     const slotMinutes = timeToMinutes(time)
-    return reservations.filter((r) => {
+    return sortedByUserId(reservations.filter((r) => {
       if (r.date !== dateStr) return false
       const startMin = timeToMinutes(r.start_time)
       const endMin = timeToMinutes(r.end_time)
       return slotMinutes >= startMin && slotMinutes < endMin
-    })
+    }))
   }
 
   const getSlotColor = (count: number): string => {
@@ -52,18 +72,7 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
     return 'bg-theme-slot-full'
   }
 
-  const isLastSlot = (time: string) => timeToMinutes(time) >= lastBookableMinutes
-
   const handleSlotClick = (date: Date, time: string) => {
-    if (isLastSlot(time)) {
-      const slotRes = getSlotReservations(date, time)
-      const userReservation = slotRes.find((r) => r.user_id === currentUserId)
-      if (userReservation) {
-        setCancelConfirm(userReservation.id)
-      }
-      return
-    }
-
     const slotReservations = getSlotReservations(date, time)
 
     const userReservation = slotReservations.find((r) => r.user_id === currentUserId)
@@ -136,54 +145,77 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
 
       {/* Grid - Desktop */}
       <div className="hidden md:block">
-        <table className="w-full border-collapse text-xs">
+        <table className="w-full border-collapse text-xs table-fixed">
+          <colgroup>
+            <col className="w-14" />
+            {days.map((day) => (
+              <col key={day.toISOString()} />
+            ))}
+          </colgroup>
           <thead>
             <tr>
-              <th className="border border-theme-border p-2 bg-theme-surface-alt w-16 text-theme-secondary sticky top-[97px] z-20">Čas</th>
+              <th className="border border-theme-border p-2 bg-theme-surface-alt text-theme-secondary sticky top-[97px] z-20">Čas</th>
               {days.map((day) => (
                 <th
                   key={day.toISOString()}
-                  className={`border border-theme-border p-2 text-theme-text sticky top-[97px] z-20 ${isSameDay(day, today) ? 'bg-blue-50' : 'bg-theme-surface-alt'}`}
+                  className={`border border-theme-border p-2 sticky top-[97px] z-20 ${isSameDay(day, today) ? 'bg-theme-today-bg text-theme-today-text' : 'bg-theme-surface-alt text-theme-text'}`}
                 >
                   <div className="font-semibold">{format(day, 'EEEEEE', { locale: cs })}</div>
-                  <div className="text-theme-secondary">{format(day, 'd.M.')}</div>
+                  <div className={isSameDay(day, today) ? 'opacity-80' : 'text-theme-secondary'}>{format(day, 'd.M.')}</div>
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {timeSlots.map((time) => (
+            {timeSlots.map((time) => {
+              return (
               <tr key={time}>
-                <td className="border border-theme-border p-1 text-center bg-theme-surface-alt text-theme-secondary font-mono">
+                <td className="border border-theme-border p-1 text-center font-mono bg-theme-surface-alt text-theme-secondary">
                   {time}
                 </td>
                 {days.map((day) => {
                   const slotRes = getSlotReservations(day, time)
                   const isPast = new Date(format(day, 'yyyy-MM-dd') + 'T' + time) < today
-                  const lastSlot = isLastSlot(time)
-                  const canClick = !isPast && (!lastSlot || slotRes.some(r => r.user_id === currentUserId))
+                  const canClick = !isPast
                   return (
                     <td
                       key={`${day.toISOString()}-${time}`}
-                      className={`border border-theme-border p-0.5 ${getSlotColor(slotRes.length)} ${isPast ? 'opacity-40' : canClick ? 'cursor-pointer' : 'cursor-default'} transition-all duration-150 hover:shadow-inner hover:ring-1 hover:ring-blue-400/40`}
+                      className={`border border-theme-border p-0 ${isPast ? 'opacity-40' : canClick ? 'cursor-pointer' : 'cursor-default'} transition-all duration-150 hover:shadow-inner hover:ring-1 hover:ring-blue-400/40`}
                       onClick={() => canClick && handleSlotClick(day, time)}
                       title={slotRes.map((r) => r.profile?.display_name || 'Uživatel').join(', ')}
                     >
-                      <div className="min-h-[20px] flex flex-col gap-0.5">
-                        {slotRes.map((r) => (
-                          <span
+                      <div className="min-h-[36px] flex">
+                        {slotRes.map((r, idx) => {
+                          const color = getUserColor(r.user_id)
+                          return (
+                          <div
                             key={r.id}
-                            className={`block truncate px-0.5 rounded text-[10px] leading-tight ${r.user_id === currentUserId ? 'font-bold text-theme-slot-text-own' : 'text-theme-slot-text'}`}
+                            className={`w-1/3 flex items-center justify-center truncate px-0.5 text-[11px] leading-tight ${r.user_id === currentUserId ? 'font-bold' : ''} ${idx > 0 ? 'border-l border-white/30' : ''}`}
+                            style={{ backgroundColor: color.bg, color: color.text }}
                           >
                             {r.profile?.display_name || 'Uživatel'}
-                          </span>
-                        ))}
+                          </div>
+                          )
+                        })}
                       </div>
                     </td>
                   )
                 })}
               </tr>
-            ))}
+              )
+            })}
+            <tr>
+              <td className="border border-theme-border p-1 text-center bg-theme-surface-alt text-theme-secondary font-mono">
+                {closingTime}
+              </td>
+              {days.map((day) => (
+                <td key={`${day.toISOString()}-close`} className="border border-theme-border p-0 bg-theme-surface-alt">
+                  <div className="min-h-[12px] flex items-center justify-center text-[9px] text-theme-secondary">
+                    Zavřeno
+                  </div>
+                </td>
+              ))}
+            </tr>
           </tbody>
         </table>
       </div>
@@ -196,10 +228,10 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
         onSlotClick={handleSlotClick}
         getSlotReservations={getSlotReservations}
         getSlotColor={getSlotColor}
-        isLastSlot={isLastSlot}
         weekStart={weekStart}
         onWeekChange={onWeekChange}
         timeSlots={timeSlots}
+        closingTime={closingTime}
       />
 
       {/* Create reservation modal */}
@@ -207,7 +239,7 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
         <ReservationModal
           date={modalData.date}
           startTime={modalData.time}
-          maxEndTime={`${String(settings.closing_hour).padStart(2, '0')}:00`}
+          maxEndTime={closingTime}
           existingReservations={reservations.filter((r) => r.date === modalData.date)}
           onConfirm={handleCreate}
           onClose={() => setModalData(null)}
@@ -243,10 +275,10 @@ function MobileDayView({
   onSlotClick,
   getSlotReservations,
   getSlotColor,
-  isLastSlot,
   weekStart,
   onWeekChange,
   timeSlots,
+  closingTime,
 }: {
   days: Date[]
   today: Date
@@ -254,10 +286,10 @@ function MobileDayView({
   onSlotClick: (date: Date, time: string) => void
   getSlotReservations: (date: Date, time: string) => Reservation[]
   getSlotColor: (count: number) => string
-  isLastSlot: (time: string) => boolean
   weekStart: Date
   onWeekChange: (date: Date) => void
   timeSlots: string[]
+  closingTime: string
 }) {
   const [dayIndex, setDayIndex] = useState(() => {
     const todayIdx = days.findIndex((d) => isSameDay(d, today))
@@ -314,30 +346,41 @@ function MobileDayView({
         {timeSlots.map((time) => {
           const slotRes = getSlotReservations(day, time)
           const isPast = new Date(format(day, 'yyyy-MM-dd') + 'T' + time) < today
-          const lastSlot = isLastSlot(time)
-          const canClick = !isPast && (!lastSlot || slotRes.some(r => r.user_id === currentUserId))
+          const canClick = !isPast
           return (
             <div
               key={time}
-              className={`flex items-stretch border border-theme-border rounded ${isPast ? 'opacity-40' : canClick ? 'cursor-pointer' : 'cursor-default'} ${getSlotColor(slotRes.length)} transition-all duration-150 hover:ring-1 hover:ring-blue-400/40`}
+              className={`flex items-stretch border border-theme-border rounded bg-theme-surface ${isPast ? 'opacity-40' : canClick ? 'cursor-pointer' : 'cursor-default'} transition-all duration-150 hover:ring-1 hover:ring-blue-400/40`}
               onClick={() => canClick && onSlotClick(day, time)}
             >
-              <div className="w-14 flex-shrink-0 p-1.5 text-xs font-mono text-theme-secondary border-r border-theme-border flex items-center justify-center">
+              <div className={`w-14 flex-shrink-0 p-1.5 text-xs font-mono border-r border-theme-border flex items-center justify-center text-theme-text ${getSlotColor(slotRes.length)}`}>
                 {time}
               </div>
-              <div className="flex-1 p-1.5 flex flex-wrap gap-1 min-h-[32px]">
-                {slotRes.map((r) => (
-                  <span
+              <div className="flex-1 flex min-h-[32px]">
+                {slotRes.map((r, idx) => {
+                  const color = getUserColor(r.user_id)
+                  return (
+                  <div
                     key={r.id}
-                    className={`text-xs px-1.5 py-0.5 rounded ${r.user_id === currentUserId ? 'bg-theme-slot-badge-own font-bold text-theme-slot-badge-own-text' : 'bg-theme-slot-badge text-theme-slot-text'}`}
+                    className={`w-1/3 flex items-center justify-center truncate text-xs px-1 ${r.user_id === currentUserId ? 'font-bold' : ''} ${idx > 0 ? 'border-l border-white/30' : ''}`}
+                    style={{ backgroundColor: color.bg, color: color.text }}
                   >
                     {r.profile?.display_name || 'Uživatel'}
-                  </span>
-                ))}
+                  </div>
+                  )
+                })}
               </div>
             </div>
           )
         })}
+        <div className="flex items-stretch border border-theme-border rounded bg-theme-surface-alt">
+          <div className="w-14 flex-shrink-0 p-1.5 text-xs font-mono text-theme-secondary border-r border-theme-border flex items-center justify-center">
+            {closingTime}
+          </div>
+          <div className="flex-1 flex items-center justify-center min-h-[32px] text-xs text-theme-secondary">
+            Zavřeno
+          </div>
+        </div>
       </div>
     </div>
   )

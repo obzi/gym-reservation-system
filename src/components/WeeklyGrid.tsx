@@ -8,6 +8,26 @@ import { ReservationModal } from './ReservationModal'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useSwipe } from '../hooks/useSwipe'
 
+function hashCode(str: string): number {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0
+  }
+  return Math.abs(hash)
+}
+
+function getUserColor(userId: string): { bg: string; text: string } {
+  const hue = hashCode(userId) % 360
+  return {
+    bg: `hsl(${hue}, 55%, 75%)`,
+    text: `hsl(${hue}, 60%, 20%)`,
+  }
+}
+
+function sortedByUserId(res: Reservation[]): Reservation[] {
+  return [...res].sort((a, b) => a.user_id.localeCompare(b.user_id))
+}
+
 interface Props {
   reservations: Reservation[]
   currentUserId: string | undefined
@@ -38,12 +58,12 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
   const getSlotReservations = (date: Date, time: string): Reservation[] => {
     const dateStr = format(date, 'yyyy-MM-dd')
     const slotMinutes = timeToMinutes(time)
-    return reservations.filter((r) => {
+    return sortedByUserId(reservations.filter((r) => {
       if (r.date !== dateStr) return false
       const startMin = timeToMinutes(r.start_time)
       const endMin = timeToMinutes(r.end_time)
       return slotMinutes >= startMin && slotMinutes < endMin
-    })
+    }))
   }
 
   const getSlotColor = (count: number): string => {
@@ -171,14 +191,18 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
                       title={slotRes.map((r) => r.profile?.display_name || 'Uživatel').join(', ')}
                     >
                       <div className={`min-h-[24px] flex flex-col ${slotRes.length === 1 ? 'justify-center' : ''}`}>
-                        {slotRes.map((r, idx) => (
+                        {slotRes.map((r, idx) => {
+                          const color = getUserColor(r.user_id)
+                          return (
                           <div
                             key={r.id}
-                            className={`flex-1 flex items-center truncate px-1 text-[10px] leading-tight ${r.user_id === currentUserId ? 'font-bold text-theme-slot-text-own' : 'text-theme-slot-text'} ${idx > 0 ? 'border-t border-theme-border/30' : ''}`}
+                            className={`flex-1 flex items-center truncate px-1 text-[10px] leading-tight ${r.user_id === currentUserId ? 'font-bold' : ''} ${idx > 0 ? 'border-t border-white/30' : ''}`}
+                            style={{ backgroundColor: color.bg, color: color.text }}
                           >
                             {r.profile?.display_name || 'Uživatel'}
                           </div>
-                        ))}
+                          )
+                        })}
                       </div>
                     </td>
                   )
@@ -327,14 +351,18 @@ function MobileDayView({
                 {time}
               </div>
               <div className={`flex-1 flex min-h-[32px] ${slotRes.length === 0 ? '' : slotRes.length === 1 ? 'justify-center' : ''}`}>
-                {slotRes.map((r, idx) => (
+                {slotRes.map((r, idx) => {
+                  const color = getUserColor(r.user_id)
+                  return (
                   <div
                     key={r.id}
-                    className={`flex-1 flex items-center justify-center truncate text-xs px-1 ${r.user_id === currentUserId ? 'font-bold text-theme-slot-badge-own-text bg-theme-slot-badge-own' : 'text-theme-slot-text bg-theme-slot-badge'} ${idx > 0 ? 'border-l border-theme-border/40' : ''}`}
+                    className={`flex-1 flex items-center justify-center truncate text-xs px-1 ${r.user_id === currentUserId ? 'font-bold' : ''} ${idx > 0 ? 'border-l border-white/30' : ''}`}
+                    style={{ backgroundColor: color.bg, color: color.text }}
                   >
                     {r.profile?.display_name || 'Uživatel'}
                   </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           )

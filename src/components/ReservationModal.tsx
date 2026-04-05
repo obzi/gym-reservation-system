@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
-import { getDurationOptions, addMinutesToTime, timeToMinutes, MAX_OVERLAP, CLOSING_HOUR } from '../lib/constants'
+import { getDurationOptions, addMinutesToTime, timeToMinutes } from '../lib/constants'
 import type { Reservation } from '../types'
+import type { GymSettings } from '../hooks/useSettings'
 import { X } from 'lucide-react'
 
 interface Props {
@@ -10,42 +11,43 @@ interface Props {
   existingReservations: Reservation[]
   onConfirm: (date: string, startTime: string, endTime: string) => void
   onClose: () => void
+  settings: GymSettings
 }
 
-export function ReservationModal({ date, startTime, maxEndTime, existingReservations, onConfirm, onClose }: Props) {
-  const [duration, setDuration] = useState(15)
+export function ReservationModal({ date, startTime, maxEndTime, existingReservations, onConfirm, onClose, settings }: Props) {
+  const [duration, setDuration] = useState(settings.min_duration_minutes)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const endTime = addMinutesToTime(startTime, duration)
-  const closingMinutes = CLOSING_HOUR * 60
+  const closingMinutes = settings.closing_hour * 60
 
   const durationOptions = useMemo(() => {
-    return getDurationOptions().filter((d) => {
+    return getDurationOptions(settings.min_duration_minutes, settings.max_duration_minutes, settings.slot_minutes).filter((d) => {
       const end = addMinutesToTime(startTime, d)
       return timeToMinutes(end) <= timeToMinutes(maxEndTime) && timeToMinutes(end) <= closingMinutes
     })
-  }, [startTime, maxEndTime, closingMinutes])
+  }, [startTime, maxEndTime, closingMinutes, settings])
 
   const wouldExceedOverlap = useMemo(() => {
     const startMin = timeToMinutes(startTime)
     const endMin = timeToMinutes(endTime)
 
-    for (let m = startMin; m < endMin; m += 15) {
+    for (let m = startMin; m < endMin; m += settings.slot_minutes) {
       const slotTime = `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`
       const count = existingReservations.filter((r) => {
         const rStart = timeToMinutes(r.start_time)
         const rEnd = timeToMinutes(r.end_time)
         return timeToMinutes(slotTime) >= rStart && timeToMinutes(slotTime) < rEnd
       }).length
-      if (count >= MAX_OVERLAP) return true
+      if (count >= settings.max_overlap) return true
     }
     return false
-  }, [startTime, endTime, existingReservations])
+  }, [startTime, endTime, existingReservations, settings])
 
   const handleConfirm = async () => {
     if (wouldExceedOverlap) {
-      setError('Některý z vybraných slotů je plný (max 3 osoby)')
+      setError(`Některý z vybraných slotů je plný (max ${settings.max_overlap} osob)`)
       return
     }
     setSubmitting(true)

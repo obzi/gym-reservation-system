@@ -5,6 +5,7 @@ import { ThemeSwitcher } from '../components/ThemeSwitcher'
 import { useReservations } from '../hooks/useReservations'
 import { useTheme } from '../hooks/useTheme'
 import type { Profile } from '../types'
+import type { GymSettings } from '../hooks/useSettings'
 import { LogOut, Settings, Pencil, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
@@ -13,9 +14,10 @@ interface Props {
   userId: string
   onSignOut: () => void
   onUpdateName: (name: string) => Promise<{ error: { message: string } | null }>
+  settings: GymSettings
 }
 
-export function CalendarPage({ profile, userId, onSignOut, onUpdateName }: Props) {
+export function CalendarPage({ profile, userId, onSignOut, onUpdateName, settings }: Props) {
   const navigate = useNavigate()
   const { theme, setTheme } = useTheme()
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }))
@@ -40,10 +42,10 @@ export function CalendarPage({ profile, userId, onSignOut, onUpdateName }: Props
     const { error } = await onUpdateName(trimmed)
     if (error) {
       setNameError(error.message)
+      setSaving(false)
     } else {
-      setEditingName(false)
+      window.location.reload()
     }
-    setSaving(false)
   }
 
   return (
@@ -89,6 +91,7 @@ export function CalendarPage({ profile, userId, onSignOut, onUpdateName }: Props
           onCancelReservation={cancelReservation}
           weekStart={weekStart}
           onWeekChange={setWeekStart}
+          settings={settings}
         />
       </main>
 

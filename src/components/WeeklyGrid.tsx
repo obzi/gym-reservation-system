@@ -1,8 +1,9 @@
 import { useMemo, useState, useCallback } from 'react'
 import { format, addDays, isSameDay } from 'date-fns'
 import { cs } from 'date-fns/locale'
-import { TIME_SLOTS, MAX_OVERLAP, timeToMinutes, CLOSING_HOUR, SLOT_MINUTES } from '../lib/constants'
+import { generateTimeSlots, timeToMinutes } from '../lib/constants'
 import type { Reservation } from '../types'
+import type { GymSettings } from '../hooks/useSettings'
 import { ReservationModal } from './ReservationModal'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useSwipe } from '../hooks/useSwipe'
@@ -14,15 +15,20 @@ interface Props {
   onCancelReservation: (id: string) => Promise<{ error: { message: string } | null }>
   weekStart: Date
   onWeekChange: (date: Date) => void
+  settings: GymSettings
 }
 
-// Last slot that can START a reservation (21:45 can't — reservation would end after 22:00 or be 0 min)
-const LAST_BOOKABLE_MINUTES = (CLOSING_HOUR * 60) - SLOT_MINUTES
-
-export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, onCancelReservation, weekStart, onWeekChange }: Props) {
+export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, onCancelReservation, weekStart, onWeekChange, settings }: Props) {
   const [modalData, setModalData] = useState<{ date: string; time: string } | null>(null)
   const [cancelConfirm, setCancelConfirm] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  const lastBookableMinutes = (settings.closing_hour * 60) - settings.slot_minutes
+
+  const timeSlots = useMemo(
+    () => generateTimeSlots(settings.opening_hour, settings.closing_hour, settings.slot_minutes),
+    [settings.opening_hour, settings.closing_hour, settings.slot_minutes],
+  )
 
   const days = useMemo(() => {
     return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
@@ -46,12 +52,10 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
     return 'bg-theme-slot-full'
   }
 
-  const isLastSlot = (time: string) => timeToMinutes(time) >= LAST_BOOKABLE_MINUTES
+  const isLastSlot = (time: string) => timeToMinutes(time) >= lastBookableMinutes
 
   const handleSlotClick = (date: Date, time: string) => {
-    // Last slot (21:45) — can't start new reservation here
     if (isLastSlot(time)) {
-      // But still allow cancelling own reservation
       const slotRes = getSlotReservations(date, time)
       const userReservation = slotRes.find((r) => r.user_id === currentUserId)
       if (userReservation) {
@@ -68,8 +72,8 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
       return
     }
 
-    if (slotReservations.length >= MAX_OVERLAP) {
-      setError('Tento slot je plný (maximum 3 osoby)')
+    if (slotReservations.length >= settings.max_overlap) {
+      setError(`Tento slot je plný (maximum ${settings.max_overlap} osob)`)
       setTimeout(() => setError(null), 3000)
       return
     }
@@ -131,15 +135,15 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
       )}
 
       {/* Grid - Desktop */}
-      <div className="hidden md:block overflow-x-auto">
+      <div className="hidden md:block">
         <table className="w-full border-collapse text-xs">
-          <thead className="sticky top-[97px] z-20">
+          <thead>
             <tr>
-              <th className="border border-theme-border p-2 bg-theme-surface-alt w-16 text-theme-secondary">Čas</th>
+              <th className="border border-theme-border p-2 bg-theme-surface-alt w-16 text-theme-secondary sticky top-[97px] z-20">Čas</th>
               {days.map((day) => (
                 <th
                   key={day.toISOString()}
-                  className={`border border-theme-border p-2 text-theme-text ${isSameDay(day, today) ? 'bg-blue-50' : 'bg-theme-surface-alt'}`}
+                  className={`border border-theme-border p-2 text-theme-text sticky top-[97px] z-20 ${isSameDay(day, today) ? 'bg-blue-50' : 'bg-theme-surface-alt'}`}
                 >
                   <div className="font-semibold">{format(day, 'EEEEEE', { locale: cs })}</div>
                   <div className="text-theme-secondary">{format(day, 'd.M.')}</div>
@@ -148,7 +152,7 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
             </tr>
           </thead>
           <tbody>
-            {TIME_SLOTS.map((time) => (
+            {timeSlots.map((time) => (
               <tr key={time}>
                 <td className="border border-theme-border p-1 text-center bg-theme-surface-alt text-theme-secondary font-mono">
                   {time}
@@ -193,6 +197,9 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
         getSlotReservations={getSlotReservations}
         getSlotColor={getSlotColor}
         isLastSlot={isLastSlot}
+        weekStart={weekStart}
+        onWeekChange={onWeekChange}
+        timeSlots={timeSlots}
       />
 
       {/* Create reservation modal */}
@@ -200,10 +207,11 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
         <ReservationModal
           date={modalData.date}
           startTime={modalData.time}
-          maxEndTime={`${CLOSING_HOUR}:00`}
+          maxEndTime={`${String(settings.closing_hour).padStart(2, '0')}:00`}
           existingReservations={reservations.filter((r) => r.date === modalData.date)}
           onConfirm={handleCreate}
           onClose={() => setModalData(null)}
+          settings={settings}
         />
       )}
 
@@ -236,6 +244,9 @@ function MobileDayView({
   getSlotReservations,
   getSlotColor,
   isLastSlot,
+  weekStart,
+  onWeekChange,
+  timeSlots,
 }: {
   days: Date[]
   today: Date
@@ -244,14 +255,35 @@ function MobileDayView({
   getSlotReservations: (date: Date, time: string) => Reservation[]
   getSlotColor: (count: number) => string
   isLastSlot: (time: string) => boolean
+  weekStart: Date
+  onWeekChange: (date: Date) => void
+  timeSlots: string[]
 }) {
   const [dayIndex, setDayIndex] = useState(() => {
     const todayIdx = days.findIndex((d) => isSameDay(d, today))
     return todayIdx >= 0 ? todayIdx : 0
   })
 
-  const goNext = useCallback(() => setDayIndex((i) => Math.min(6, i + 1)), [])
-  const goPrev = useCallback(() => setDayIndex((i) => Math.max(0, i - 1)), [])
+  const goNext = useCallback(() => {
+    setDayIndex((i) => {
+      if (i >= 6) {
+        onWeekChange(addDays(weekStart, 7))
+        return 0
+      }
+      return i + 1
+    })
+  }, [weekStart, onWeekChange])
+
+  const goPrev = useCallback(() => {
+    setDayIndex((i) => {
+      if (i <= 0) {
+        onWeekChange(addDays(weekStart, -7))
+        return 6
+      }
+      return i - 1
+    })
+  }, [weekStart, onWeekChange])
+
   const swipe = useSwipe(goNext, goPrev)
 
   const day = days[dayIndex]
@@ -262,8 +294,7 @@ function MobileDayView({
       <div className="flex items-center justify-between mb-3 sticky top-[97px] z-20 bg-theme-bg py-2 -mx-4 px-4">
         <button
           onClick={goPrev}
-          disabled={dayIndex === 0}
-          className="p-2 rounded hover:bg-theme-hover text-theme-text disabled:opacity-30"
+          className="p-2 rounded hover:bg-theme-hover text-theme-text"
         >
           <ChevronLeft size={20} />
         </button>
@@ -273,15 +304,14 @@ function MobileDayView({
         </div>
         <button
           onClick={goNext}
-          disabled={dayIndex === 6}
-          className="p-2 rounded hover:bg-theme-hover text-theme-text disabled:opacity-30"
+          className="p-2 rounded hover:bg-theme-hover text-theme-text"
         >
           <ChevronRight size={20} />
         </button>
       </div>
 
       <div className="space-y-0.5">
-        {TIME_SLOTS.map((time) => {
+        {timeSlots.map((time) => {
           const slotRes = getSlotReservations(day, time)
           const isPast = new Date(format(day, 'yyyy-MM-dd') + 'T' + time) < today
           const lastSlot = isLastSlot(time)

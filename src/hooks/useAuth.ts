@@ -7,6 +7,7 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isRecovery, setIsRecovery] = useState(false)
 
   const fetchProfile = useCallback(async (userId: string) => {
     const { data } = await supabase
@@ -26,8 +27,11 @@ export function useAuth() {
       setLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null)
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsRecovery(true)
+      }
       if (session?.user) {
         fetchProfile(session.user.id)
       } else {
@@ -78,6 +82,14 @@ export function useAuth() {
     return { error }
   }
 
+  const updatePassword = async (newPassword: string) => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
+    if (!error) {
+      setIsRecovery(false)
+    }
+    return { error }
+  }
+
   const updateDisplayName = async (newName: string) => {
     if (!user) return { error: { message: 'Nepřihlášen' } }
     const { error } = await supabase
@@ -90,5 +102,5 @@ export function useAuth() {
     return { error }
   }
 
-  return { user, profile, loading, signIn, signUp, signOut, resetPassword, updateDisplayName, isAdmin: profile?.role === 'admin' }
+  return { user, profile, loading, signIn, signUp, signOut, resetPassword, updatePassword, updateDisplayName, isAdmin: profile?.role === 'admin', isRecovery }
 }

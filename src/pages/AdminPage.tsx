@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useReservations } from '../hooks/useReservations'
 import type { Profile } from '../types'
@@ -92,57 +92,55 @@ function AdminSettings({ settings, onUpdateSettings }: { settings: GymSettings; 
     <div className="bg-theme-surface rounded-lg border border-theme-border p-4">
       <h2 className="font-semibold mb-4 text-theme-text">Nastavení posilovny</h2>
 
-      <div className="space-y-4">
-        <div className="flex items-center justify-between gap-4">
-          <label className="text-sm text-theme-text font-medium">Otevření</label>
-          <div className="flex items-center gap-1">
-            <select
-              value={form.opening_hour}
-              onChange={(e) => setForm((prev) => ({ ...prev, opening_hour: Number(e.target.value) }))}
-              className="border border-theme-border rounded px-2 py-2 bg-theme-surface-alt text-theme-text"
-            >
-              {hours.filter(h => h < 24).map(h => (
-                <option key={h} value={h}>{String(h).padStart(2, '0')}</option>
-              ))}
-            </select>
-            <span className="text-theme-text">:</span>
-            <select
-              value={form.opening_minute}
-              onChange={(e) => setForm((prev) => ({ ...prev, opening_minute: Number(e.target.value) }))}
-              className="border border-theme-border rounded px-2 py-2 bg-theme-surface-alt text-theme-text"
-            >
-              {minutes.map(m => (
-                <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
-              ))}
-            </select>
-          </div>
+      <div className="grid grid-cols-[1fr_auto] gap-y-4 gap-x-4 items-center">
+        <label className="text-sm text-theme-text font-medium">Otevření</label>
+        <div className="flex items-center gap-1">
+          <select
+            value={form.opening_hour}
+            onChange={(e) => setForm((prev) => ({ ...prev, opening_hour: Number(e.target.value) }))}
+            className="border border-theme-border rounded px-2 py-2 bg-theme-surface-alt text-theme-text"
+          >
+            {hours.filter(h => h < 24).map(h => (
+              <option key={h} value={h}>{String(h).padStart(2, '0')}</option>
+            ))}
+          </select>
+          <span className="text-theme-text">:</span>
+          <select
+            value={form.opening_minute}
+            onChange={(e) => setForm((prev) => ({ ...prev, opening_minute: Number(e.target.value) }))}
+            className="border border-theme-border rounded px-2 py-2 bg-theme-surface-alt text-theme-text"
+          >
+            {minutes.map(m => (
+              <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
+            ))}
+          </select>
         </div>
-        <div className="flex items-center justify-between gap-4">
-          <label className="text-sm text-theme-text font-medium">Zavření</label>
-          <div className="flex items-center gap-1">
-            <select
-              value={form.closing_hour}
-              onChange={(e) => setForm((prev) => ({ ...prev, closing_hour: Number(e.target.value) }))}
-              className="border border-theme-border rounded px-2 py-2 bg-theme-surface-alt text-theme-text"
-            >
-              {hours.map(h => (
-                <option key={h} value={h}>{String(h).padStart(2, '0')}</option>
-              ))}
-            </select>
-            <span className="text-theme-text">:</span>
-            <select
-              value={form.closing_minute}
-              onChange={(e) => setForm((prev) => ({ ...prev, closing_minute: Number(e.target.value) }))}
-              className="border border-theme-border rounded px-2 py-2 bg-theme-surface-alt text-theme-text"
-            >
-              {minutes.map(m => (
-                <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
-              ))}
-            </select>
-          </div>
+
+        <label className="text-sm text-theme-text font-medium">Zavření</label>
+        <div className="flex items-center gap-1">
+          <select
+            value={form.closing_hour}
+            onChange={(e) => setForm((prev) => ({ ...prev, closing_hour: Number(e.target.value) }))}
+            className="border border-theme-border rounded px-2 py-2 bg-theme-surface-alt text-theme-text"
+          >
+            {hours.map(h => (
+              <option key={h} value={h}>{String(h).padStart(2, '0')}</option>
+            ))}
+          </select>
+          <span className="text-theme-text">:</span>
+          <select
+            value={form.closing_minute}
+            onChange={(e) => setForm((prev) => ({ ...prev, closing_minute: Number(e.target.value) }))}
+            className="border border-theme-border rounded px-2 py-2 bg-theme-surface-alt text-theme-text"
+          >
+            {minutes.map(m => (
+              <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
+            ))}
+          </select>
         </div>
+
         {numberFields.map((f) => (
-          <div key={f.key} className="flex items-center justify-between gap-4">
+          <React.Fragment key={f.key}>
             <label className="text-sm text-theme-text font-medium">{f.label}</label>
             <div className="flex items-center gap-2">
               <input
@@ -156,7 +154,7 @@ function AdminSettings({ settings, onUpdateSettings }: { settings: GymSettings; 
               />
               {f.suffix && <span className="text-sm text-theme-secondary">{f.suffix}</span>}
             </div>
-          </div>
+          </React.Fragment>
         ))}
       </div>
 
@@ -201,26 +199,35 @@ function AdminReservations() {
       {reservations.length === 0 ? (
         <p className="p-4 text-theme-secondary text-sm">Žádné rezervace</p>
       ) : (
-        <div className="divide-y divide-theme-border">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-theme-border">
+              <th className="p-3 text-left text-theme-secondary font-medium">Jméno</th>
+              <th className="p-3 text-left text-theme-secondary font-medium">Datum</th>
+              <th className="p-3 text-left text-theme-secondary font-medium">Čas</th>
+              <th className="p-3 w-10"></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-theme-border">
           {reservations.map((r) => (
-            <div key={r.id} className="p-4 flex items-center justify-between">
-              <div>
-                <span className="font-medium text-theme-text">{r.profile?.display_name || 'Uživatel'}</span>
-                <span className="text-theme-secondary text-sm ml-3">
-                  {r.date.split('-').reverse().join('.')} {r.start_time.slice(0, 5)}–{r.end_time.slice(0, 5)}
-                </span>
-              </div>
-              <button
-                onClick={() => handleCancel(r.id)}
-                disabled={cancelling === r.id}
-                className="p-2 text-red-500 hover:bg-red-500/10 rounded disabled:opacity-50"
-                title="Zrušit rezervaci"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
+            <tr key={r.id}>
+              <td className="p-3 font-medium text-theme-text">{r.profile?.display_name || 'Uživatel'}</td>
+              <td className="p-3 text-theme-secondary">{r.date.split('-').reverse().join('.')}</td>
+              <td className="p-3 text-theme-secondary">{r.start_time.slice(0, 5)}–{r.end_time.slice(0, 5)}</td>
+              <td className="p-3">
+                <button
+                  onClick={() => handleCancel(r.id)}
+                  disabled={cancelling === r.id}
+                  className="p-2 text-red-500 hover:bg-red-500/10 rounded disabled:opacity-50"
+                  title="Zrušit rezervaci"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </td>
+            </tr>
           ))}
-        </div>
+          </tbody>
+        </table>
       )}
     </div>
   )

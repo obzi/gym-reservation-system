@@ -145,10 +145,16 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
 
       {/* Grid - Desktop */}
       <div className="hidden md:block">
-        <table className="w-full border-collapse text-xs">
+        <table className="w-full border-collapse text-xs table-fixed">
+          <colgroup>
+            <col className="w-14" />
+            {days.map((day) => (
+              <col key={day.toISOString()} />
+            ))}
+          </colgroup>
           <thead>
             <tr>
-              <th className="border border-theme-border p-2 bg-theme-surface-alt w-16 text-theme-secondary sticky top-[97px] z-20">Čas</th>
+              <th className="border border-theme-border p-2 bg-theme-surface-alt text-theme-secondary sticky top-[97px] z-20">Čas</th>
               {days.map((day) => (
                 <th
                   key={day.toISOString()}
@@ -178,13 +184,13 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
                       onClick={() => canClick && handleSlotClick(day, time)}
                       title={slotRes.map((r) => r.profile?.display_name || 'Uživatel').join(', ')}
                     >
-                      <div className={`min-h-[32px] flex flex-col ${slotRes.length === 1 ? 'justify-center' : ''}`}>
+                      <div className="min-h-[36px] flex">
                         {slotRes.map((r, idx) => {
                           const color = getUserColor(r.user_id)
                           return (
                           <div
                             key={r.id}
-                            className={`flex-1 flex items-center truncate px-1 text-xs leading-tight ${r.user_id === currentUserId ? 'font-bold' : ''} ${idx > 0 ? 'border-t border-white/30' : ''}`}
+                            className={`w-1/3 flex items-center justify-center truncate px-0.5 text-[11px] leading-tight ${r.user_id === currentUserId ? 'font-bold' : ''} ${idx > 0 ? 'border-l border-white/30' : ''}`}
                             style={{ backgroundColor: color.bg, color: color.text }}
                           >
                             {r.profile?.display_name || 'Uživatel'}

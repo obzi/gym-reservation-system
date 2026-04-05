@@ -352,13 +352,13 @@ function MobileDayView({
               <div className="w-14 flex-shrink-0 p-1.5 text-xs font-mono text-theme-secondary border-r border-theme-border flex items-center justify-center">
                 {time}
               </div>
-              <div className={`flex-1 flex min-h-[32px] ${slotRes.length === 0 ? '' : slotRes.length === 1 ? 'justify-center' : ''}`}>
+              <div className="flex-1 flex min-h-[32px]">
                 {slotRes.map((r, idx) => {
                   const color = getUserColor(r.user_id)
                   return (
                   <div
                     key={r.id}
-                    className={`flex-1 flex items-center justify-center truncate text-xs px-1 ${r.user_id === currentUserId ? 'font-bold' : ''} ${idx > 0 ? 'border-l border-white/30' : ''}`}
+                    className={`w-1/3 flex items-center justify-center truncate text-xs px-1 ${r.user_id === currentUserId ? 'font-bold' : ''} ${idx > 0 ? 'border-l border-white/30' : ''}`}
                     style={{ backgroundColor: color.bg, color: color.text }}
                   >
                     {r.profile?.display_name || 'Uživatel'}

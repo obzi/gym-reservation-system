@@ -326,14 +326,14 @@ function MobileDayView({
               <div className="w-14 flex-shrink-0 p-1.5 text-xs font-mono text-theme-secondary border-r border-theme-border flex items-center justify-center">
                 {time}
               </div>
-              <div className="flex-1 p-1.5 flex flex-wrap gap-1 min-h-[32px]">
-                {slotRes.map((r) => (
-                  <span
+              <div className={`flex-1 flex min-h-[32px] ${slotRes.length === 0 ? '' : slotRes.length === 1 ? 'justify-center' : ''}`}>
+                {slotRes.map((r, idx) => (
+                  <div
                     key={r.id}
-                    className={`text-xs px-1.5 py-0.5 rounded ${r.user_id === currentUserId ? 'bg-theme-slot-badge-own font-bold text-theme-slot-badge-own-text' : 'bg-theme-slot-badge text-theme-slot-text'}`}
+                    className={`flex-1 flex items-center justify-center truncate text-xs px-1 ${r.user_id === currentUserId ? 'font-bold text-theme-slot-badge-own-text bg-theme-slot-badge-own' : 'text-theme-slot-text bg-theme-slot-badge'} ${idx > 0 ? 'border-l border-theme-border/40' : ''}`}
                   >
                     {r.profile?.display_name || 'Uživatel'}
-                  </span>
+                  </div>
                 ))}
               </div>
             </div>

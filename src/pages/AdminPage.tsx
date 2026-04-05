@@ -85,13 +85,8 @@ function AdminSettings({ settings, onUpdateSettings }: { settings: GymSettings; 
     { key: 'max_duration_minutes', label: 'Max. délka rezervace', min: 15, max: 480, step: 15, suffix: 'min' },
   ]
 
-  const toTimeStr = (h: number, m: number) =>
-    `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
-
-  const parseTime = (val: string) => {
-    const [h, m] = val.split(':').map(Number)
-    return { h, m }
-  }
+  const hours = Array.from({ length: 25 }, (_, i) => i)
+  const minutes = Array.from({ length: 12 }, (_, i) => i * 5)
 
   return (
     <div className="bg-theme-surface rounded-lg border border-theme-border p-4">
@@ -100,27 +95,51 @@ function AdminSettings({ settings, onUpdateSettings }: { settings: GymSettings; 
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-4">
           <label className="text-sm text-theme-text font-medium">Otevření</label>
-          <input
-            type="time"
-            value={toTimeStr(form.opening_hour, form.opening_minute)}
-            onChange={(e) => {
-              const { h, m } = parseTime(e.target.value)
-              setForm((prev) => ({ ...prev, opening_hour: h, opening_minute: m }))
-            }}
-            className="border border-theme-border rounded px-3 py-2 bg-theme-surface-alt text-theme-text"
-          />
+          <div className="flex items-center gap-1">
+            <select
+              value={form.opening_hour}
+              onChange={(e) => setForm((prev) => ({ ...prev, opening_hour: Number(e.target.value) }))}
+              className="border border-theme-border rounded px-2 py-2 bg-theme-surface-alt text-theme-text"
+            >
+              {hours.filter(h => h < 24).map(h => (
+                <option key={h} value={h}>{String(h).padStart(2, '0')}</option>
+              ))}
+            </select>
+            <span className="text-theme-text">:</span>
+            <select
+              value={form.opening_minute}
+              onChange={(e) => setForm((prev) => ({ ...prev, opening_minute: Number(e.target.value) }))}
+              className="border border-theme-border rounded px-2 py-2 bg-theme-surface-alt text-theme-text"
+            >
+              {minutes.map(m => (
+                <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="flex items-center justify-between gap-4">
           <label className="text-sm text-theme-text font-medium">Zavření</label>
-          <input
-            type="time"
-            value={toTimeStr(form.closing_hour, form.closing_minute)}
-            onChange={(e) => {
-              const { h, m } = parseTime(e.target.value)
-              setForm((prev) => ({ ...prev, closing_hour: h, closing_minute: m }))
-            }}
-            className="border border-theme-border rounded px-3 py-2 bg-theme-surface-alt text-theme-text"
-          />
+          <div className="flex items-center gap-1">
+            <select
+              value={form.closing_hour}
+              onChange={(e) => setForm((prev) => ({ ...prev, closing_hour: Number(e.target.value) }))}
+              className="border border-theme-border rounded px-2 py-2 bg-theme-surface-alt text-theme-text"
+            >
+              {hours.map(h => (
+                <option key={h} value={h}>{String(h).padStart(2, '0')}</option>
+              ))}
+            </select>
+            <span className="text-theme-text">:</span>
+            <select
+              value={form.closing_minute}
+              onChange={(e) => setForm((prev) => ({ ...prev, closing_minute: Number(e.target.value) }))}
+              className="border border-theme-border rounded px-2 py-2 bg-theme-surface-alt text-theme-text"
+            >
+              {minutes.map(m => (
+                <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
+              ))}
+            </select>
+          </div>
         </div>
         {numberFields.map((f) => (
           <div key={f.key} className="flex items-center justify-between gap-4">

@@ -21,6 +21,8 @@
   --color-theme-slot-badge: var(--slot-badge);
   --color-theme-slot-badge-own: var(--slot-badge-own);
   --color-theme-slot-badge-own-text: var(--slot-badge-own-text);
+  --color-theme-today-bg: var(--today-bg);
+  --color-theme-today-text: var(--today-text);
 }
 
 /* Light theme */
@@ -45,6 +47,8 @@
   --slot-badge: #e5e7eb;
   --slot-badge-own: #bfdbfe;
   --slot-badge-own-text: #1e40af;
+  --today-bg: #1e3a5f;
+  --today-text: #e0ecff;
 }
 
 /* Dim theme */
@@ -69,6 +73,8 @@
   --slot-badge: #3b3d56;
   --slot-badge-own: #2a3a5c;
   --slot-badge-own-text: #93b4f8;
+  --today-bg: #3a4a6a;
+  --today-text: #e2e4f0;
 }
 
 /* Dark theme */
@@ -93,4 +99,6 @@
   --slot-badge: #2e2e2e;
   --slot-badge-own: #1e2a4a;
   --slot-badge-own-text: #7db4ff;
+  --today-bg: #2a3550;
+  --today-text: #e5e5e5;
 }

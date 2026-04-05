@@ -158,10 +158,10 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
               {days.map((day) => (
                 <th
                   key={day.toISOString()}
-                  className={`border border-theme-border p-2 text-theme-text sticky top-[97px] z-20 ${isSameDay(day, today) ? 'bg-blue-50' : 'bg-theme-surface-alt'}`}
+                  className={`border border-theme-border p-2 sticky top-[97px] z-20 ${isSameDay(day, today) ? 'bg-theme-today-bg text-theme-today-text' : 'bg-theme-surface-alt text-theme-text'}`}
                 >
                   <div className="font-semibold">{format(day, 'EEEEEE', { locale: cs })}</div>
-                  <div className="text-theme-secondary">{format(day, 'd.M.')}</div>
+                  <div className={isSameDay(day, today) ? 'opacity-80' : 'text-theme-secondary'}>{format(day, 'd.M.')}</div>
                 </th>
               ))}
             </tr>

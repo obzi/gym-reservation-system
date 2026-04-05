@@ -274,8 +274,8 @@ function AdminUsers() {
                 <span className="ml-1 text-xs bg-blue-600/20 text-blue-400 px-1.5 py-0.5 rounded">admin</span>
               )}
             </div>
-            <div className="flex-1 min-w-0 truncate text-sm text-theme-secondary">
-              {user.email}
+            <div className="flex-1 min-w-0 overflow-x-auto text-sm text-theme-secondary">
+              <span className="whitespace-nowrap">{user.email}</span>
             </div>
             <div className="flex-shrink-0 flex gap-1">
               <button

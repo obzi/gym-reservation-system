@@ -35,12 +35,12 @@ export function AdminPage({ settings, onUpdateSettings }: AdminPageProps) {
       </header>
 
       <main className="max-w-4xl mx-auto p-4">
-        <div className="flex gap-2 mb-6 flex-wrap">
+        <div className="flex gap-2 mb-6 overflow-x-auto -mx-4 px-4 pb-1">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`px-4 py-2 rounded text-sm font-medium transition-colors ${tab === t.key ? 'bg-blue-600 text-white' : 'bg-theme-surface text-theme-secondary hover:bg-theme-hover border border-theme-border'}`}
+              className={`px-4 py-2 rounded text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${tab === t.key ? 'bg-blue-600 text-white' : 'bg-theme-surface text-theme-secondary hover:bg-theme-hover border border-theme-border'}`}
             >
               {t.label}
             </button>

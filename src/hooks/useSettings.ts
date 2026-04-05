@@ -5,7 +5,9 @@ export interface GymSettings {
   max_overlap: number
   max_advance_days: number
   opening_hour: number
+  opening_minute: number
   closing_hour: number
+  closing_minute: number
   slot_minutes: number
   min_duration_minutes: number
   max_duration_minutes: number
@@ -15,7 +17,9 @@ export const DEFAULT_SETTINGS: GymSettings = {
   max_overlap: 3,
   max_advance_days: 3,
   opening_hour: 7,
+  opening_minute: 0,
   closing_hour: 22,
+  closing_minute: 0,
   slot_minutes: 15,
   min_duration_minutes: 15,
   max_duration_minutes: 120,
@@ -36,7 +40,9 @@ export function useSettings() {
         max_overlap: data.max_overlap,
         max_advance_days: data.max_advance_days,
         opening_hour: data.opening_hour,
+        opening_minute: data.opening_minute ?? 0,
         closing_hour: data.closing_hour,
+        closing_minute: data.closing_minute ?? 0,
         slot_minutes: data.slot_minutes,
         min_duration_minutes: data.min_duration_minutes,
         max_duration_minutes: data.max_duration_minutes,

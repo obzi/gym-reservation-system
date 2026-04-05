@@ -77,22 +77,52 @@ function AdminSettings({ settings, onUpdateSettings }: { settings: GymSettings; 
     setSaving(false)
   }
 
-  const fields: { key: keyof GymSettings; label: string; min: number; max: number; step: number; suffix: string }[] = [
+  const numberFields: { key: keyof GymSettings; label: string; min: number; max: number; step: number; suffix: string }[] = [
     { key: 'max_overlap', label: 'Max. osob na slot', min: 1, max: 20, step: 1, suffix: '' },
     { key: 'max_advance_days', label: 'Rezervace dopředu', min: 1, max: 30, step: 1, suffix: 'dní' },
-    { key: 'opening_hour', label: 'Otevření', min: 0, max: 23, step: 1, suffix: ':00' },
-    { key: 'closing_hour', label: 'Zavření', min: 1, max: 24, step: 1, suffix: ':00' },
     { key: 'slot_minutes', label: 'Délka slotu', min: 5, max: 60, step: 5, suffix: 'min' },
     { key: 'min_duration_minutes', label: 'Min. délka rezervace', min: 5, max: 120, step: 5, suffix: 'min' },
     { key: 'max_duration_minutes', label: 'Max. délka rezervace', min: 15, max: 480, step: 15, suffix: 'min' },
   ]
+
+  const toTimeStr = (h: number, m: number) =>
+    `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+
+  const parseTime = (val: string) => {
+    const [h, m] = val.split(':').map(Number)
+    return { h, m }
+  }
 
   return (
     <div className="bg-theme-surface rounded-lg border border-theme-border p-4">
       <h2 className="font-semibold mb-4 text-theme-text">Nastavení posilovny</h2>
 
       <div className="space-y-4">
-        {fields.map((f) => (
+        <div className="flex items-center justify-between gap-4">
+          <label className="text-sm text-theme-text font-medium">Otevření</label>
+          <input
+            type="time"
+            value={toTimeStr(form.opening_hour, form.opening_minute)}
+            onChange={(e) => {
+              const { h, m } = parseTime(e.target.value)
+              setForm((prev) => ({ ...prev, opening_hour: h, opening_minute: m }))
+            }}
+            className="border border-theme-border rounded px-3 py-2 bg-theme-surface-alt text-theme-text"
+          />
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <label className="text-sm text-theme-text font-medium">Zavření</label>
+          <input
+            type="time"
+            value={toTimeStr(form.closing_hour, form.closing_minute)}
+            onChange={(e) => {
+              const { h, m } = parseTime(e.target.value)
+              setForm((prev) => ({ ...prev, closing_hour: h, closing_minute: m }))
+            }}
+            className="border border-theme-border rounded px-3 py-2 bg-theme-surface-alt text-theme-text"
+          />
+        </div>
+        {numberFields.map((f) => (
           <div key={f.key} className="flex items-center justify-between gap-4">
             <label className="text-sm text-theme-text font-medium">{f.label}</label>
             <div className="flex items-center gap-2">
@@ -158,7 +188,7 @@ function AdminReservations() {
               <div>
                 <span className="font-medium text-theme-text">{r.profile?.display_name || 'Uživatel'}</span>
                 <span className="text-theme-secondary text-sm ml-3">
-                  {r.date.split('-').reverse().join('.')} {r.start_time}–{r.end_time}
+                  {r.date.split('-').reverse().join('.')} {r.start_time.slice(0, 5)}–{r.end_time.slice(0, 5)}
                 </span>
               </div>
               <button

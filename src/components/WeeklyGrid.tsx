@@ -23,11 +23,12 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
   const [cancelConfirm, setCancelConfirm] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const lastBookableMinutes = (settings.closing_hour * 60) - settings.slot_minutes
+  const closingTotalMinutes = settings.closing_hour * 60 + settings.closing_minute
+  const lastBookableMinutes = closingTotalMinutes - settings.slot_minutes
 
   const timeSlots = useMemo(
-    () => generateTimeSlots(settings.opening_hour, settings.closing_hour, settings.slot_minutes),
-    [settings.opening_hour, settings.closing_hour, settings.slot_minutes],
+    () => generateTimeSlots(settings.opening_hour, settings.opening_minute, settings.closing_hour, settings.closing_minute, settings.slot_minutes),
+    [settings.opening_hour, settings.opening_minute, settings.closing_hour, settings.closing_minute, settings.slot_minutes],
   )
 
   const days = useMemo(() => {
@@ -207,7 +208,7 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
         <ReservationModal
           date={modalData.date}
           startTime={modalData.time}
-          maxEndTime={`${String(settings.closing_hour).padStart(2, '0')}:00`}
+          maxEndTime={`${String(settings.closing_hour).padStart(2, '0')}:${String(settings.closing_minute).padStart(2, '0')}`}
           existingReservations={reservations.filter((r) => r.date === modalData.date)}
           onConfirm={handleCreate}
           onClose={() => setModalData(null)}

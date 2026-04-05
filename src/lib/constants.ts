@@ -1,9 +1,11 @@
-export function generateTimeSlots(openingHour: number, closingHour: number, slotMinutes: number): string[] {
+export function generateTimeSlots(openingHour: number, openingMinute: number, closingHour: number, closingMinute: number, slotMinutes: number): string[] {
   const slots: string[] = []
-  for (let h = openingHour; h < closingHour; h++) {
-    for (let m = 0; m < 60; m += slotMinutes) {
-      slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
-    }
+  const startTotal = openingHour * 60 + openingMinute
+  const endTotal = closingHour * 60 + closingMinute
+  for (let t = startTotal; t < endTotal; t += slotMinutes) {
+    const h = Math.floor(t / 60)
+    const m = t % 60
+    slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
   }
   return slots
 }

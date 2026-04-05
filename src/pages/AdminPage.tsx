@@ -263,37 +263,48 @@ function AdminUsers() {
       <div className="p-4 border-b border-theme-border">
         <h2 className="font-semibold text-theme-text">Uživatelé</h2>
       </div>
-      <div className="divide-y divide-theme-border">
-        {users.map((user) => (
-          <div key={user.id} className="p-4 flex items-center justify-between">
-            <div>
-              <span className={`font-medium ${!user.active ? 'text-theme-secondary line-through' : 'text-theme-text'}`}>
-                {user.display_name}
-              </span>
-              <span className="text-theme-secondary text-sm ml-2">{user.email}</span>
-              {user.role === 'admin' && (
-                <span className="ml-2 text-xs bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded">admin</span>
-              )}
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => toggleActive(user)}
-                className={`p-2 rounded ${user.active ? 'text-yellow-500 hover:bg-yellow-500/10' : 'text-green-500 hover:bg-green-500/10'}`}
-                title={user.active ? 'Deaktivovat' : 'Aktivovat'}
-              >
-                {user.active ? <UserX size={16} /> : <UserCheck size={16} />}
-              </button>
-              <button
-                onClick={() => deleteUser(user)}
-                className="p-2 text-red-500 hover:bg-red-500/10 rounded"
-                title="Smazat"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-theme-border">
+            <th className="p-3 text-left text-theme-secondary font-medium">Jméno</th>
+            <th className="p-3 text-left text-theme-secondary font-medium">Email</th>
+            <th className="p-3 w-20"></th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-theme-border">
+          {users.map((user) => (
+            <tr key={user.id}>
+              <td className="p-3">
+                <span className={`font-medium ${!user.active ? 'text-theme-secondary line-through' : 'text-theme-text'}`}>
+                  {user.display_name}
+                </span>
+                {user.role === 'admin' && (
+                  <span className="ml-2 text-xs bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded">admin</span>
+                )}
+              </td>
+              <td className="p-3 text-theme-secondary">{user.email}</td>
+              <td className="p-3">
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => toggleActive(user)}
+                    className={`p-2 rounded ${user.active ? 'text-yellow-500 hover:bg-yellow-500/10' : 'text-green-500 hover:bg-green-500/10'}`}
+                    title={user.active ? 'Deaktivovat' : 'Aktivovat'}
+                  >
+                    {user.active ? <UserX size={16} /> : <UserCheck size={16} />}
+                  </button>
+                  <button
+                    onClick={() => deleteUser(user)}
+                    className="p-2 text-red-500 hover:bg-red-500/10 rounded"
+                    title="Smazat"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }

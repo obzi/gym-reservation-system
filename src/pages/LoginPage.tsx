@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 
 interface Props {
   onSignIn: (email: string, password: string) => Promise<{ error: { message: string } | null }>
@@ -38,7 +37,7 @@ export function LoginPage({ onSignIn, onResetPassword }: Props) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-theme-bg px-4">
       <div className="bg-theme-surface p-8 rounded-lg shadow-sm border border-theme-border w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-center mb-6 text-theme-text">Rezervace posilovny</h1>
+        <h1 className="text-2xl font-bold text-center mb-6 text-theme-text">{resetMode ? 'Zapomenuté heslo' : 'Rezervace posilovny'}</h1>
 
         {resetSent ? (
           <div className="text-center">
@@ -112,10 +111,6 @@ export function LoginPage({ onSignIn, onResetPassword }: Props) {
 
             <div className="text-center text-sm text-theme-secondary">
               Nemáte účet? Požádejte správce o pozvánku.
-              <br />
-              <Link to="/register" className="text-blue-500 hover:underline">
-                Mám pozvánku
-              </Link>
             </div>
           </form>
         )}

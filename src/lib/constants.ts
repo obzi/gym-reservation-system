@@ -1,26 +1,16 @@
-export const OPENING_HOUR = 7
-export const CLOSING_HOUR = 22
-export const SLOT_MINUTES = 15
-export const MIN_DURATION_MINUTES = 15
-export const MAX_DURATION_MINUTES = 120
-export const MAX_ADVANCE_DAYS = 3
-export const MAX_OVERLAP = 3
-
-export function generateTimeSlots(): string[] {
+export function generateTimeSlots(openingHour: number, closingHour: number, slotMinutes: number): string[] {
   const slots: string[] = []
-  for (let h = OPENING_HOUR; h < CLOSING_HOUR; h++) {
-    for (let m = 0; m < 60; m += SLOT_MINUTES) {
+  for (let h = openingHour; h < closingHour; h++) {
+    for (let m = 0; m < 60; m += slotMinutes) {
       slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
     }
   }
   return slots
 }
 
-export const TIME_SLOTS = generateTimeSlots()
-
-export function getDurationOptions(): number[] {
+export function getDurationOptions(minDuration: number, maxDuration: number, slotMinutes: number): number[] {
   const options: number[] = []
-  for (let d = MIN_DURATION_MINUTES; d <= MAX_DURATION_MINUTES; d += SLOT_MINUTES) {
+  for (let d = minDuration; d <= maxDuration; d += slotMinutes) {
     options.push(d)
   }
   return options

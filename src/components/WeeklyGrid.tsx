@@ -166,18 +166,18 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
                   return (
                     <td
                       key={`${day.toISOString()}-${time}`}
-                      className={`border border-theme-border p-0.5 ${getSlotColor(slotRes.length)} ${isPast ? 'opacity-40' : canClick ? 'cursor-pointer' : 'cursor-default'} transition-all duration-150 hover:shadow-inner hover:ring-1 hover:ring-blue-400/40`}
+                      className={`border border-theme-border p-0 ${getSlotColor(slotRes.length)} ${isPast ? 'opacity-40' : canClick ? 'cursor-pointer' : 'cursor-default'} transition-all duration-150 hover:shadow-inner hover:ring-1 hover:ring-blue-400/40`}
                       onClick={() => canClick && handleSlotClick(day, time)}
                       title={slotRes.map((r) => r.profile?.display_name || 'Uživatel').join(', ')}
                     >
-                      <div className="min-h-[20px] flex flex-col gap-0.5">
-                        {slotRes.map((r) => (
-                          <span
+                      <div className={`min-h-[24px] flex flex-col ${slotRes.length === 1 ? 'justify-center' : ''}`}>
+                        {slotRes.map((r, idx) => (
+                          <div
                             key={r.id}
-                            className={`block truncate px-0.5 rounded text-[10px] leading-tight ${r.user_id === currentUserId ? 'font-bold text-theme-slot-text-own' : 'text-theme-slot-text'}`}
+                            className={`flex-1 flex items-center truncate px-1 text-[10px] leading-tight ${r.user_id === currentUserId ? 'font-bold text-theme-slot-text-own' : 'text-theme-slot-text'} ${idx > 0 ? 'border-t border-theme-border/30' : ''}`}
                           >
                             {r.profile?.display_name || 'Uživatel'}
-                          </span>
+                          </div>
                         ))}
                       </div>
                     </td>

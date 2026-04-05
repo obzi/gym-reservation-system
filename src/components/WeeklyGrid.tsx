@@ -174,7 +174,7 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
                   return (
                     <td
                       key={`${day.toISOString()}-${time}`}
-                      className={`border border-theme-border p-0 ${getSlotColor(slotRes.length)} ${isPast ? 'opacity-40' : canClick ? 'cursor-pointer' : 'cursor-default'} transition-all duration-150 hover:shadow-inner hover:ring-1 hover:ring-blue-400/40`}
+                      className={`border border-theme-border p-0 ${isPast ? 'opacity-40' : canClick ? 'cursor-pointer' : 'cursor-default'} transition-all duration-150 hover:shadow-inner hover:ring-1 hover:ring-blue-400/40`}
                       onClick={() => canClick && handleSlotClick(day, time)}
                       title={slotRes.map((r) => r.profile?.display_name || 'Uživatel').join(', ')}
                     >

@@ -259,52 +259,43 @@ function AdminUsers() {
   if (loading) return <p className="text-theme-secondary">Načítám...</p>
 
   return (
-    <div className="bg-theme-surface rounded-lg border border-theme-border">
+    <div className="bg-theme-surface rounded-lg border border-theme-border overflow-hidden">
       <div className="p-4 border-b border-theme-border">
         <h2 className="font-semibold text-theme-text">Uživatelé</h2>
       </div>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-theme-border">
-            <th className="p-3 text-left text-theme-secondary font-medium">Jméno</th>
-            <th className="p-3 text-left text-theme-secondary font-medium">Email</th>
-            <th className="p-3 w-20"></th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-theme-border">
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td className="p-3">
-                <span className={`font-medium ${!user.active ? 'text-theme-secondary line-through' : 'text-theme-text'}`}>
-                  {user.display_name}
-                </span>
-                {user.role === 'admin' && (
-                  <span className="ml-2 text-xs bg-blue-600/20 text-blue-400 px-2 py-0.5 rounded">admin</span>
-                )}
-              </td>
-              <td className="p-3 text-theme-secondary">{user.email}</td>
-              <td className="p-3">
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => toggleActive(user)}
-                    className={`p-2 rounded ${user.active ? 'text-yellow-500 hover:bg-yellow-500/10' : 'text-green-500 hover:bg-green-500/10'}`}
-                    title={user.active ? 'Deaktivovat' : 'Aktivovat'}
-                  >
-                    {user.active ? <UserX size={16} /> : <UserCheck size={16} />}
-                  </button>
-                  <button
-                    onClick={() => deleteUser(user)}
-                    className="p-2 text-red-500 hover:bg-red-500/10 rounded"
-                    title="Smazat"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="divide-y divide-theme-border">
+        {users.map((user) => (
+          <div key={user.id} className="flex items-center gap-3 p-3">
+            <div className="flex-shrink-0 w-28 truncate">
+              <span className={`font-medium text-sm ${!user.active ? 'text-theme-secondary line-through' : 'text-theme-text'}`}>
+                {user.display_name}
+              </span>
+              {user.role === 'admin' && (
+                <span className="ml-1 text-xs bg-blue-600/20 text-blue-400 px-1.5 py-0.5 rounded">admin</span>
+              )}
+            </div>
+            <div className="flex-1 min-w-0 truncate text-sm text-theme-secondary">
+              {user.email}
+            </div>
+            <div className="flex-shrink-0 flex gap-1">
+              <button
+                onClick={() => toggleActive(user)}
+                className={`p-2 rounded ${user.active ? 'text-yellow-500 hover:bg-yellow-500/10' : 'text-green-500 hover:bg-green-500/10'}`}
+                title={user.active ? 'Deaktivovat' : 'Aktivovat'}
+              >
+                {user.active ? <UserX size={16} /> : <UserCheck size={16} />}
+              </button>
+              <button
+                onClick={() => deleteUser(user)}
+                className="p-2 text-red-500 hover:bg-red-500/10 rounded"
+                title="Smazat"
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -404,17 +395,19 @@ function AdminInvites() {
               <input
                 readOnly
                 value={`${window.location.origin}/gym-reservation-system/register?token=${t.token}`}
-                className="flex-1 bg-transparent text-sm font-mono outline-none text-theme-text"
+                className="flex-1 min-w-0 bg-transparent text-sm font-mono outline-none text-theme-text"
               />
               <span className="text-xs text-theme-secondary whitespace-nowrap" title={`Vyprší: ${format(new Date(t.expires_at), 'd.M. HH:mm')}`}>
                 {formatExpiry(t.expires_at)}
               </span>
-              <button onClick={() => copyLink(t.token)} className="p-2 hover:bg-theme-hover rounded" title="Kopírovat">
-                {copiedToken === t.token ? <Check size={16} className="text-green-500" /> : <Copy size={16} className="text-theme-secondary" />}
-              </button>
-              <button onClick={() => deleteToken(t.token)} className="p-2 hover:bg-red-500/10 rounded" title="Smazat pozvánku">
-                <Trash2 size={16} className="text-red-500" />
-              </button>
+              <div className="flex-shrink-0 flex gap-1">
+                <button onClick={() => copyLink(t.token)} className="p-2 hover:bg-theme-hover rounded" title="Kopírovat">
+                  {copiedToken === t.token ? <Check size={16} className="text-green-500" /> : <Copy size={16} className="text-theme-secondary" />}
+                </button>
+                <button onClick={() => deleteToken(t.token)} className="p-2 hover:bg-red-500/10 rounded" title="Smazat pozvánku">
+                  <Trash2 size={16} className="text-red-500" />
+                </button>
+              </div>
             </div>
           ))}
         </div>

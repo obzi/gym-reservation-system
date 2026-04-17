@@ -24,8 +24,38 @@ function getUserColor(userId: string): { bg: string; text: string } {
   }
 }
 
-function sortedByUserId(res: Reservation[]): Reservation[] {
-  return [...res].sort((a, b) => a.user_id.localeCompare(b.user_id))
+function reservationsOverlap(a: Reservation, b: Reservation): boolean {
+  const aStart = timeToMinutes(a.start_time)
+  const aEnd = timeToMinutes(a.end_time)
+  const bStart = timeToMinutes(b.start_time)
+  const bEnd = timeToMinutes(b.end_time)
+  return aStart < bEnd && bStart < aEnd
+}
+
+function assignColumns(dayReservations: Reservation[], maxOverlap: number): Map<string, number> {
+  const sorted = [...dayReservations].sort((a, b) => {
+    const diff = timeToMinutes(a.start_time) - timeToMinutes(b.start_time)
+    return diff !== 0 ? diff : a.user_id.localeCompare(b.user_id)
+  })
+  const columnMap = new Map<string, number>()
+  const columns: Reservation[][] = Array.from({ length: maxOverlap }, () => [])
+
+  for (const res of sorted) {
+    let placed = false
+    for (let col = 0; col < maxOverlap; col++) {
+      const hasConflict = columns[col].some((other) => reservationsOverlap(res, other))
+      if (!hasConflict) {
+        columns[col].push(res)
+        columnMap.set(res.id, col)
+        placed = true
+        break
+      }
+    }
+    if (!placed) {
+      columnMap.set(res.id, 0)
+    }
+  }
+  return columnMap
 }
 
 interface Props {
@@ -54,15 +84,38 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
     return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
   }, [weekStart])
 
+  const columnAssignments = useMemo(() => {
+    const map = new Map<string, Map<string, number>>()
+    for (const r of reservations) {
+      if (!map.has(r.date)) {
+        const dayRes = reservations.filter((x) => x.date === r.date)
+        map.set(r.date, assignColumns(dayRes, settings.max_overlap))
+      }
+    }
+    return map
+  }, [reservations, settings.max_overlap])
+
   const getSlotReservations = (date: Date, time: string): Reservation[] => {
     const dateStr = format(date, 'yyyy-MM-dd')
     const slotMinutes = timeToMinutes(time)
-    return sortedByUserId(reservations.filter((r) => {
+    return reservations.filter((r) => {
       if (r.date !== dateStr) return false
       const startMin = timeToMinutes(r.start_time)
       const endMin = timeToMinutes(r.end_time)
       return slotMinutes >= startMin && slotMinutes < endMin
-    }))
+    })
+  }
+
+  const getSlotColumns = (date: Date, time: string): (Reservation | null)[] => {
+    const dateStr = format(date, 'yyyy-MM-dd')
+    const slotRes = getSlotReservations(date, time)
+    const dayColumns = columnAssignments.get(dateStr)
+    const result: (Reservation | null)[] = Array.from({ length: settings.max_overlap }, () => null)
+    for (const r of slotRes) {
+      const col = dayColumns?.get(r.id) ?? 0
+      result[col] = r
+    }
+    return result
   }
 
   const getSlotColor = (count: number): string => {
@@ -174,7 +227,8 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
                   {time}
                 </td>
                 {days.map((day) => {
-                  const slotRes = getSlotReservations(day, time)
+                  const columns = getSlotColumns(day, time)
+                  const slotRes = columns.filter((r): r is Reservation => r !== null)
                   const isPast = new Date(format(day, 'yyyy-MM-dd') + 'T' + time) < today
                   const canClick = !isPast
                   return (
@@ -185,7 +239,12 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
                       title={slotRes.map((r) => r.profile?.display_name || 'Uživatel').join(', ')}
                     >
                       <div className="min-h-[36px] flex">
-                        {slotRes.map((r, idx) => {
+                        {columns.map((r, idx) => {
+                          if (!r) {
+                            return (
+                              <div key={`empty-${idx}`} className={`w-1/3 ${idx > 0 ? 'border-l border-white/30' : ''}`} />
+                            )
+                          }
                           const color = getUserColor(r.user_id)
                           return (
                           <div
@@ -226,7 +285,7 @@ export function WeeklyGrid({ reservations, currentUserId, onCreateReservation, o
         today={today}
         currentUserId={currentUserId}
         onSlotClick={handleSlotClick}
-        getSlotReservations={getSlotReservations}
+        getSlotColumns={getSlotColumns}
         getSlotColor={getSlotColor}
         weekStart={weekStart}
         onWeekChange={onWeekChange}
@@ -273,7 +332,7 @@ function MobileDayView({
   today,
   currentUserId,
   onSlotClick,
-  getSlotReservations,
+  getSlotColumns,
   getSlotColor,
   weekStart,
   onWeekChange,
@@ -284,7 +343,7 @@ function MobileDayView({
   today: Date
   currentUserId: string | undefined
   onSlotClick: (date: Date, time: string) => void
-  getSlotReservations: (date: Date, time: string) => Reservation[]
+  getSlotColumns: (date: Date, time: string) => (Reservation | null)[]
   getSlotColor: (count: number) => string
   weekStart: Date
   onWeekChange: (date: Date) => void
@@ -344,7 +403,8 @@ function MobileDayView({
 
       <div className="space-y-0.5">
         {timeSlots.map((time) => {
-          const slotRes = getSlotReservations(day, time)
+          const columns = getSlotColumns(day, time)
+          const slotRes = columns.filter((r): r is Reservation => r !== null)
           const isPast = new Date(format(day, 'yyyy-MM-dd') + 'T' + time) < today
           const canClick = !isPast
           return (
@@ -357,7 +417,12 @@ function MobileDayView({
                 {time}
               </div>
               <div className="flex-1 flex min-h-[32px]">
-                {slotRes.map((r, idx) => {
+                {columns.map((r, idx) => {
+                  if (!r) {
+                    return (
+                      <div key={`empty-${idx}`} className={`w-1/3 ${idx > 0 ? 'border-l border-white/30' : ''}`} />
+                    )
+                  }
                   const color = getUserColor(r.user_id)
                   return (
                   <div

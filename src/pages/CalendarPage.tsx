@@ -57,11 +57,11 @@ export function CalendarPage({ profile, userId, onSignOut, onUpdateName, setting
             <ThemeSwitcher theme={theme} setTheme={setTheme} />
             <button
               onClick={() => { setEditingName(true); setNewName(profile.display_name); setNameError(null) }}
-              className="flex items-center gap-1 text-sm text-theme-secondary hover:text-theme-text transition-colors hidden sm:flex"
+              className="flex items-center gap-1 text-sm text-theme-secondary hover:text-theme-text transition-colors"
               title="Upravit jméno"
             >
-              <span>{profile.display_name}</span>
-              <Pencil size={12} />
+              <span className="hidden sm:inline">{profile.display_name}</span>
+              <Pencil size={14} />
             </button>
             {profile.role === 'admin' && (
               <button

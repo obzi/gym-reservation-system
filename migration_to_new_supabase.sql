@@ -290,10 +290,10 @@ begin
   delete from public.reservations where id = p_reservation_id;
 
   perform net.http_post(
-    url := current_setting('app.settings.supabase_url', true) || '/functions/v1/notify-cancellation',
+    url := 'https://xyhfactasqgfbtmglgsu.supabase.co/functions/v1/notify-cancellation',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
-      'Authorization', 'Bearer ' || current_setting('app.settings.service_role_key', true)
+      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5aGZhY3Rhc3FnZmJ0bWdsZ3N1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTM3NDMzNiwiZXhwIjoyMDk0OTUwMzM2fQ.JsPJvc0WRmeyc32L0hfITEYGd-AwfX-eiD_h6XMEYMA'
     ),
     body := jsonb_build_object(
       'email', v_reservation.email,
@@ -332,11 +332,7 @@ $$;
 
 alter publication supabase_realtime add table public.reservations;
 
--- ---- Nastav app.settings pro email notifikace ----
--- DŮLEŽITÉ: Nahraď hodnoty za nové URL a service_role_key!
-
-alter database postgres set "app.settings.supabase_url" = 'https://TVUJ_NOVY_PROJECT_ID.supabase.co';
-alter database postgres set "app.settings.service_role_key" = 'TVUJ_NOVY_SERVICE_ROLE_KEY';
+-- URL a service_role_key jsou hardcoded přímo ve funkci admin_cancel_reservation výše.
 
 
 -- =============================================================

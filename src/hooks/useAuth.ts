@@ -65,6 +65,7 @@ export function useAuth() {
       password,
       options: {
         data: { display_name: displayName },
+        emailRedirectTo: `${window.location.origin}/gym-reservation-system/`,
       },
     })
     return { error }

@@ -9,16 +9,36 @@ jobs:
   keep-alive:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase REST API
+      - name: Query Supabase database
+        run: |
+          response=$(curl -s -w "\n%{http_code}" \
+            "${{ secrets.VITE_SUPABASE_URL }}/rest/v1/health_check?select=checked_at" \
+            -H "apikey: ${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
+            -H "Accept: application/json")
+          body=$(echo "$response" | head -n -1)
+          code=$(echo "$response" | tail -n 1)
+          echo "HTTP $code: $body"
+          if [ "$code" -ge 200 ] && [ "$code" -lt 300 ]; then
+            echo "Database query successful - Supabase is active"
+          else
+            echo "Query failed with HTTP $code"
+            exit 1
+          fi
+
+      - name: Update timestamp via service role
         run: |
           response=$(curl -s -o /dev/null -w "%{http_code}" \
-            "${{ secrets.VITE_SUPABASE_URL }}/rest/v1/" \
-            -H "apikey: ${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.VITE_SUPABASE_ANON_KEY }}")
-          echo "Response: $response"
-          if [ "$response" -ge 200 ] && [ "$response" -lt 500 ]; then
-            echo "Supabase is alive (HTTP $response)"
+            -X PATCH "${{ secrets.VITE_SUPABASE_URL }}/rest/v1/health_check?id=eq.1" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -H "Prefer: return=minimal" \
+            -d '{"checked_at": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}')
+          echo "Update HTTP $response"
+          if [ "$response" -ge 200 ] && [ "$response" -lt 300 ]; then
+            echo "Timestamp updated - confirmed DB write activity"
           else
-            echo "Supabase may be paused or unreachable (HTTP $response)"
+            echo "Update failed with HTTP $response (check SUPABASE_SERVICE_ROLE_KEY secret)"
             exit 1
           fi

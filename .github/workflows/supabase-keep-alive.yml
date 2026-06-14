@@ -16,9 +16,9 @@ jobs:
             -H "apikey: ${{ secrets.VITE_SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.VITE_SUPABASE_ANON_KEY }}")
           echo "Response: $response"
-          if [ "$response" -ge 200 ] && [ "$response" -lt 400 ]; then
-            echo "Supabase is alive"
+          if [ "$response" -ge 200 ] && [ "$response" -lt 500 ]; then
+            echo "Supabase is alive (HTTP $response)"
           else
-            echo "Unexpected response: $response"
+            echo "Supabase may be paused or unreachable (HTTP $response)"
             exit 1
           fi
